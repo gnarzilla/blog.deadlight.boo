@@ -15,13 +15,20 @@ A minimalist, edge-native blog platform built on Cloudflare Workers. Features a 
 🛡️ - Secure by default - XSS protection, CSRF safe, bcrypt password hashing
 
 ### New in v2
-📄 - Individual post pages - Clean URLs with SEO-friendly permalinks
-📑 - Smart pagination - Configurable posts per page with navigation
-✂️ - Post excerpts - Automatic or manual with <!--more--> tag
-🔍 - Post navigation - Previous/Next links between posts
-👥 - User management - Add multiple authors via admin panel
-📊 - Request logging - Built-in analytics without privacy invasion
-🏗️ - Clean architecture - Organized routes, templates, and middleware
+
+📄 Individual post pages - Clean URLs with SEO-friendly permalinks
+
+📑 Smart pagination - Configurable posts per page with navigation
+
+✂️ Post excerpts - Automatic or manual with <!--more--> tag
+
+🔍 Post navigation - Previous/Next links between posts
+
+👥 User management - Add multiple authors via admin panel
+
+📊 Request logging - Built-in analytics without privacy invasion
+
+🏗️ Clean architecture - Organized routes, templates, and middleware
 
 ## Quick Start
 
