@@ -59,11 +59,14 @@ bash
 ```
 
 Update wrangler.toml with your database ID:
+```
 toml
 [[d1_databases]]
 binding = "DB"
 database_name = "blog_content"
 database_id = "your-database-id-here"
+```
+
 Initialize the database:
 ```
 bash
