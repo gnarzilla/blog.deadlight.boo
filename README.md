@@ -75,11 +75,12 @@ wrangler d1 execute blog_content --remote --file=schema.sql
 ```
 
 Configure your domain in wrangler.toml:
-
+```
 toml
 [[routes]]
 pattern = "yourdomain.com/*"
 zone_id = "your-zone-id"
+```
 
 Set production secrets:
 
