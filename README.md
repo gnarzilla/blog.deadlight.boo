@@ -6,13 +6,20 @@ A minimalist, edge-native blog platform built on Cloudflare Workers. Features a 
 
 ## Features
 ### Core
-🚀 - Zero cold starts - Runs on Cloudflare Workers edge network (300+ locations)
-🔐 - Multi-user authentication - JWT-based auth with secure sessions
-📝 - Full Markdown support - Write posts in Markdown with excerpt control
-🌓 - Dark/Light themes - Smooth theme switching, respects system preference
-💾 - D1 Database - SQLite at the edge for your content
-⚡ - Lightning fast - Under 35KB gzipped, loads instantly worldwide
-🛡️ - Secure by default - XSS protection, CSRF safe, bcrypt password hashing
+
+🚀 Zero cold starts - Runs on Cloudflare Workers edge network (300+ locations)
+
+🔐 Multi-user authentication - JWT-based auth with secure sessions
+
+📝 Full Markdown support - Write posts in Markdown with excerpt control
+
+🌓 Dark/Light themes - Smooth theme switching, respects system preference
+
+💾 D1 Database - SQLite at the edge for your content
+
+⚡ Lightning fast - Under 35KB gzipped, loads instantly worldwide
+
+🛡️ Secure by default - XSS protection, CSRF safe, bcrypt password hashing
 
 ### New in v2
 
