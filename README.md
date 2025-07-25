@@ -172,21 +172,33 @@ Create a new route in the appropriate file following the existing patterns.
 ## Roadmap
 
 Next Up
+
 📊 Admin dashboard - Statistics and quick actions
+
 🏷️ Tags/Categories - Better content organization
+
 🔍 Search - Full-text search across posts
+
 📰 RSS/Atom feeds - For the feed reader fans
 
 Considering
+
 🖼️ R2 image storage - Direct upload with optimization
+
 📧 Email notifications - New post alerts
+
 💬 Privacy-first comments - No tracking, no ads
+
 🔌 Plugin system - Extend without forking
+
 📱 PWA support - Offline reading
 
 Blue Sky Ideas
+
 📬 Webmail integration - Your blog + email at the edge
+
 🌐 ActivityPub - Join the fediverse
+
 🎨 Theme marketplace - Share your designs
 
 ## Migration from v1
@@ -199,16 +211,26 @@ Deploy and test
 This is an open source project! Contributions welcome:
 
 🐛 Report bugs via issues
+
 💡 Suggest features
+
 🔧 Submit PRs for fixes
+
 📖 Improve documentation
+
 🎨 Create themes
+
 🌍 Add translations
-License
+
+## License
 MIT - Use this however you want!
 
 ## Acknowledgments
+
 Built with Cloudflare Workers, D1, and minimal dependencies
+
 Inspired by the bloat of modern web platforms
+
 Special thanks to the edge computing community
+
 Maintained with ❤️ and Diet Mountain Dew
