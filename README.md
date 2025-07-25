@@ -4,6 +4,19 @@ A minimalist, edge-native blog platform built on Cloudflare Workers. Features a 
 
 🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
 
+<img width="2222" height="1239" alt="image" src="https://github.com/user-attachments/assets/05862ed5-d3cc-4c7f-9aff-8d01ed093237" />
+
+<img width="2224" height="1241" alt="image" src="https://github.com/user-attachments/assets/f6f0b745-387a-4e1e-b4a5-0df3d8987c63" />
+
+## Admin Dashboard
+
+<img width="2224" height="1243" alt="image" src="https://github.com/user-attachments/assets/6ff729b5-2e31-4190-bc6b-96bd1a92d514" />
+
+## Dynamic Settings
+
+<img width="2223" height="1239" alt="image" src="https://github.com/user-attachments/assets/d8addda7-f93a-4dd1-b2d7-272d9328dc90" />
+
+
 ## Features
 ### Core
 
