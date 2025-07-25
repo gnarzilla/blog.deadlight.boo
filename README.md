@@ -176,7 +176,7 @@ Edit src/config.js to customize:
 
 ```
 bash
-# Visit /admin/users/add when logged in
+# Visit https://your-site/admin/add-user when logged in
 # Or use the script:
 node scripts/create-user.js username password
 ```
