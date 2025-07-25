@@ -21,6 +21,7 @@ A minimalist, edge-native blog platform built on Cloudflare Workers. Features a 
 
 🛡️ Secure by default - XSS protection, CSRF safe, bcrypt password hashing
 
+
 ### New in v2
 
 📄 Individual post pages - Clean URLs with SEO-friendly permalinks
@@ -185,6 +186,7 @@ Next Up
 
 📰 RSS/Atom feeds - For the feed reader fans
 
+
 Considering
 
 🖼️ R2 image storage - Direct upload with optimization
@@ -197,6 +199,7 @@ Considering
 
 📱 PWA support - Offline reading
 
+
 Blue Sky Ideas
 
 📬 Webmail integration - Your blog + email at the edge
@@ -205,11 +208,13 @@ Blue Sky Ideas
 
 🎨 Theme marketplace - Share your designs
 
+
 ## Migration from v1
 Export your posts from v1
 Update your wrangler.toml with the new structure
 Run the migration script (coming soon)
 Deploy and test
+
 
 ## Contributing
 This is an open source project! Contributions welcome:
