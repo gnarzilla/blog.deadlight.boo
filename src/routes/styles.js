@@ -468,106 +468,349 @@ const baseStyles = `
       justify-content: center;
     }
   }
-`;
 
-// Dark theme variables
-const darkTheme = `
-  :root[data-theme="dark"] {
-    /* Colors */
-    --bg-primary: #000;
-    --bg-secondary: #1a1a1a;
-    --text-primary: #fff;
-    --text-secondary: #888;
-    --border-color: #333;
-    --border-hover: #555;
-    
-    /* Links */
-    --link-color: #8ba3c7;
-    --link-hover: #adc3e7;
-    
-    /* Navigation */
-    --nav-hover-bg: #333;
-    --nav-hover-color: #fff;
-    
-    /* Buttons - monochrome only */
-    --button-primary-bg: #333;
-    --button-primary-text: #fff;
-    --button-primary-hover: #555;
-    
-    --button-secondary-bg: #444;  /* Edit button - slightly lighter */
-    --button-secondary-text: #fff;
-    --button-secondary-hover: #666;
-    
-    --button-danger-bg: #000;  /* Delete button - pure black */
-    --button-danger-text: #fff;
-    --button-danger-hover: #222;
-    
-    /* Forms */
-    --input-bg: #121212;
-    --input-border: #333;
-    
-    /* Code */
-    --code-bg: #1a1a1a;
-    
-    /* Messages */
-    --success-bg: #0a4f0a;
-    --success-text: #90ee90;
-    --success-border: #0f7f0f;
-    
-    --error-bg: #4f0a0a;
-    --error-text: #ff9090;
-    --error-border: #7f0f0f;
+  /* Admin Dashboard */
+  .admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
   }
-`;
 
-// Light theme variables
-const lightTheme = `
-  :root[data-theme="light"] {
-    /* Colors */
-    --bg-primary: #fff;
-    --bg-secondary: #f5f5f5;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --border-color: #ddd;
-    --border-hover: #999;
-    
-    /* Links */
-    --link-color: #0066cc;
-    --link-hover: #0052a3;
-    
-    /* Navigation */
-    --nav-hover-bg: #f0f0f0;
-    --nav-hover-color: #333;
-    
-    /* Buttons - monochrome only */
-    --button-primary-bg: #333;
-    --button-primary-text: #fff;
-    --button-primary-hover: #555;
-    
-    --button-secondary-bg: #666;  /* Edit button - grey */
-    --button-secondary-text: #fff;
-    --button-secondary-hover: #888;
-    
-    --button-danger-bg: #000;  /* Delete button - black in light mode too */
-    --button-danger-text: #fff;
-    --button-danger-hover: #333;
-    
-    /* Forms */
-    --input-bg: #fff;
-    --input-border: #ccc;
-    
-    /* Code */
-    --code-bg: #f4f4f4;
-    
-    /* Messages */
-    --success-bg: #d4edda;
-    --success-text: #155724;
-    --success-border: #c3e6cb;
-    
-    --error-bg: #f8d7da;
-    --error-text: #721c24;
-    --error-border: #f5c6cb;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
   }
+
+  .stat-card {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    text-align: center;
+  }
+
+  .stat-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+
+  .quick-actions {
+    margin-bottom: 3rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Simple Chart */
+  .chart-section {
+    margin-bottom: 3rem;
+  }
+
+  .simple-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 200px;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    gap: 0.5rem;
+  }
+
+  .chart-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    height: 100%;
+  }
+
+  .chart-bar .bar {
+    width: 100%;
+    background: var(--button-primary-bg);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    height: var(--height);
+    transition: height 0.3s ease;
+  }
+
+  .chart-bar .label {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+  }
+
+  .chart-bar .value {
+    position: absolute;
+    bottom: calc(var(--height) + 0.25rem);
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  /* Data Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .data-table th {
+    background: var(--bg-primary);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.875rem;
+  }
+
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table tr:hover {
+    background: var(--bg-primary);
+  }
+
+  .small-button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .simple-chart {
+      padding: 0.5rem;
+    }
+    
+    .chart-bar .value {
+      font-size: 0.625rem;
+    }
+    
+    .data-table {
+      font-size: 0.875rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+      padding: 0.5rem;
+    }
+  }
+
+  /* Page Header */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    background: var(--button-primary-bg);
+    color: var(--button-primary-text);
+    border-radius: var(--border-radius);
+    margin-left: 0.5rem;
+  }
+
+  /* Info Box */
+  .info-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 2rem 0;
+  }
+
+  .info-box p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  /* Settings */
+  .settings-grid {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .setting-group {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .setting-group h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  .setting-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+
+  .setting-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-item label {
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .setting-value {
+    color: var(--text-primary);
+  }
+
+  .future-settings ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .future-settings li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .muted {
+    color: var(--text-secondary);
+  }
+  `;
+
+  // Dark theme variables
+  const darkTheme = `
+    :root[data-theme="dark"] {
+      /* Colors */
+      --bg-primary: #000;
+      --bg-secondary: #1a1a1a;
+      --text-primary: #fff;
+      --text-secondary: #888;
+      --border-color: #333;
+      --border-hover: #555;
+      
+      /* Links */
+      --link-color: #8ba3c7;
+      --link-hover: #adc3e7;
+      
+      /* Navigation */
+      --nav-hover-bg: #333;
+      --nav-hover-color: #fff;
+      
+      /* Buttons - monochrome only */
+      --button-primary-bg: #333;
+      --button-primary-text: #fff;
+      --button-primary-hover: #555;
+      
+      --button-secondary-bg: #444;  /* Edit button - slightly lighter */
+      --button-secondary-text: #fff;
+      --button-secondary-hover: #666;
+      
+      --button-danger-bg: #614f4fff;  /* Delete button - pure black */
+      --button-danger-text: #fff;
+      --button-danger-hover: #ada6a6;
+      
+      /* Forms */
+      --input-bg: #121212;
+      --input-border: #333;
+      
+      /* Code */
+      --code-bg: #1a1a1a;
+      
+      /* Messages */
+      --success-bg: #0a4f0a;
+      --success-text: #90ee90;
+      --success-border: #0f7f0f;
+      
+      --error-bg: #4f0a0a;
+      --error-text: #ff9090;
+      --error-border: #7f0f0f;
+    }
+  `;
+
+  // Light theme variables
+  const lightTheme = `
+    :root[data-theme="light"] {
+      /* Colors */
+      --bg-primary: #fff;
+      --bg-secondary: #f5f5f5;
+      --text-primary: #333;
+      --text-secondary: #666;
+      --border-color: #ddd;
+      --border-hover: #999;
+      
+      /* Links */
+      --link-color: #0066cc;
+      --link-hover: #0052a3;
+      
+      /* Navigation */
+      --nav-hover-bg: #f0f0f0;
+      --nav-hover-color: #333;
+      
+      /* Buttons - monochrome only */
+      --button-primary-bg: #333;
+      --button-primary-text: #fff;
+      --button-primary-hover: #555;
+      
+      --button-secondary-bg: #666;  /* Edit button - grey */
+      --button-secondary-text: #fff;
+      --button-secondary-hover: #888;
+      
+      --button-danger-bg: #000;  /* Delete button - black in light mode too */
+      --button-danger-text: #fff;
+      --button-danger-hover: #333;
+      
+      /* Forms */
+      --input-bg: #fff;
+      --input-border: #ccc;
+      
+      /* Code */
+      --code-bg: #f4f4f4;
+      
+      /* Messages */
+      --success-bg: #d4edda;
+      --success-text: #155724;
+      --success-border: #c3e6cb;
+      
+      --error-bg: #f8d7da;
+      --error-text: #721c24;
+      --error-border: #f5c6cb;
+    }
 `;
 
 export const styleRoutes = {

@@ -33,3 +33,22 @@ CREATE TABLE IF NOT EXISTS request_logs (
     country TEXT,
     error TEXT
 );
+
+-- Create settings table for site configuration
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  type TEXT DEFAULT 'string', -- string, number, boolean
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default settings
+INSERT OR IGNORE INTO settings (key, value, type) VALUES 
+  ('site_title', 'deadlight.boo', 'string'),
+  ('site_description', 'A minimal blog framework', 'string'),
+  ('posts_per_page', '10', 'number'),
+  ('date_format', 'M/D/YYYY', 'string'),
+  ('timezone', 'UTC', 'string'),
+  ('enable_registration', 'false', 'boolean'),
+  ('require_login_to_read', 'false', 'boolean'),
+  ('maintenance_mode', 'false', 'boolean');

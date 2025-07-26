@@ -30,6 +30,6 @@ CREATE TABLE posts (
 INSERT INTO users (username, password, salt)
 VALUES (
   'admin',
-  'bcada3757d2720ce36a29558747659c68dc56c0a84c3a7f8b538457f30cba89c',
-  '5d194f6e21c0c7800572e7068f21989e'
+  '8fc45306fc96bf7be539b0dc4762e9c2abb6498dd2fe8041f3ca3d625930bc51',
+  '8549c25740a308c20e2b3b090fac702b'
 );
