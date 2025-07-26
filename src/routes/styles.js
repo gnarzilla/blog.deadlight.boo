@@ -410,7 +410,6 @@ const baseStyles = `
 
 
   .theme-toggle {
-    background-color: var(--bg-primary);
     border: 2px solid var(--border-color);
     border-radius: 50%;
     width: 50px;
@@ -420,7 +419,6 @@ const baseStyles = `
     align-items: center;
     justify-content: center;
     transition: var(--transition);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
   }
 
   .theme-toggle:hover {
@@ -744,6 +742,9 @@ const baseStyles = `
       --button-danger-bg: #614f4fff;  /* Delete button - pure black */
       --button-danger-text: #fff;
       --button-danger-hover: #ada6a6;
+
+      --theme-toggle-box-shadow: #ffffffff;
+      --theme-toggle-background-color: #000;
       
       /* Forms */
       --input-bg: #121212;
@@ -794,6 +795,9 @@ const baseStyles = `
       --button-danger-bg: #000;  /* Delete button - black in light mode too */
       --button-danger-text: #fff;
       --button-danger-hover: #333;
+
+      --theme-toggle-box-shadow: #ffffffff;
+      --theme-toggle-box-shadow: #00000000;
       
       /* Forms */
       --input-bg: #fff;

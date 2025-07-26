@@ -15,7 +15,7 @@ export function renderAuthTemplate(title, bodyContent) {
         <h1><a href="/">${title}</a></h1>
         <div class="theme-toggle-container">
           <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-            <span class="theme-icon">🌙</span>
+            <span class="theme-icon">✧</span>
           </button>
         </div>
       </header>

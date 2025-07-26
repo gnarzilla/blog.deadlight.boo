@@ -2,3 +2,4 @@ node_modules/
 .wrangler/
 *:Zone.Identifier
 .env
+wrangler.toml
