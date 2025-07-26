@@ -29,7 +29,7 @@ export function renderTemplate(title, bodyContent, user = null) {
           ${authLinks}
           <div class="theme-toggle-container">
             <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-              <span class="theme-icon">✧</span>
+              <span class="theme-icon">✵</span>
             </button>
           </div>
         </nav>
