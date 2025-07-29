@@ -2,6 +2,8 @@
 import { renderLoginForm } from '../templates/auth/index.js';
 import { hashPassword, verifyPassword } from '../utils/auth.js';
 import { createJWT } from '../utils/jwt.js';
+import { UserModel } from '../../../../lib.deadlight/core/src/db/models/user.js';
+import { Logger } from '../../../../lib.deadlight/core/src/logging/logger.js';
 
 export const authRoutes = {
   '/login': {
@@ -12,6 +14,9 @@ export const authRoutes = {
     },
 
     POST: async (request, env) => {
+      const userModel = new UserModel(env.DB);
+      const logger = new Logger({ context: 'auth' });
+      
       try {
         const formDataRequest = new Request(request.url, {
           method: request.method,
@@ -23,41 +28,28 @@ export const authRoutes = {
         const username = formData.get('username');
         const password = formData.get('password');
 
-        console.log('Login attempt:', { username, passwordLength: password?.length });
+        logger.info('Login attempt', { username, passwordLength: password?.length });
 
         if (!username || !password) {
-          throw new Error('Missing username or password');
+          return new Response('Missing username or password', { status: 400 });
         }
 
-        // Get user from database
-        const userRecord = await env.DB.prepare(
-          'SELECT * FROM users WHERE username = ?'
-        ).bind(username).first();
-
-        console.log('Database query result:', {
-          found: !!userRecord,
-          hasPassword: !!userRecord?.password,
-          hasSalt: !!userRecord?.salt
-        });
-
-        if (!userRecord) {
+        // Use the model's authenticate method
+        const authResult = await userModel.authenticate(username, password);
+        
+        if (!authResult.success) {
+          logger.warn('Failed login attempt', { username, reason: authResult.error });
           return new Response('Invalid username or password', { status: 401 });
         }
 
-        const isValid = await verifyPassword(
-          password,
-          userRecord.password,
-          userRecord.salt
-        );
+        const { user } = authResult;
+        
+        // Update last login
+        await userModel.updateLastLogin(user.id);
 
-        console.log('Password verification result:', { isValid });
-
-        if (!isValid) {
-          return new Response('Invalid username or password', { status: 401 });
-        }
-
+        // Create JWT (still using your existing function)
         const token = await createJWT(
-          { id: userRecord.id, username: userRecord.username },
+          { id: user.id, username: user.username, role: user.role || 'user' },
           env.JWT_SECRET
         );
 
@@ -69,36 +61,37 @@ export const authRoutes = {
           'Location': url.origin + '/'
         });
 
-        console.log('Setting auth cookie:', {
-          token: token.substring(0, 10) + '...',
-          isSecure,
-          cookieHeader: headers.get('Set-Cookie')
+        logger.info('Successful login', { 
+          userId: user.id, 
+          username: user.username
         });
 
-        return new Response(null, {
-          status: 303,
-          headers
-        });
+        return new Response(null, { status: 303, headers });
+        
       } catch (error) {
-        console.error('Login error:', error);
-        return new Response(`Authentication error: ${error.message}`, {
-          status: 500,
-          headers: { 'Content-Type': 'text/plain' }
-        });
+        logger.error('Login error', { error: error.message });
+        return new Response('Internal server error', { status: 500 });
       }
     }
-  },
+  },  // <-- Close /login here
 
-  '/logout': {
-    GET: async (request) => {
-      const headers = new Headers({
-        'Set-Cookie': 'token=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
-        'Location': '/'
-      });
-      
+  '/logout': {  // <-- Now /logout is a sibling of /login
+    GET: async (request, env) => {
       return new Response(null, {
-        status: 303,
-        headers
+        status: 302,
+        headers: {
+          'Location': '/',
+          'Set-Cookie': `token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`
+        }
+      });
+    },
+    POST: async (request, env) => {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': '/',
+          'Set-Cookie': `token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`
+        }
       });
     }
   }

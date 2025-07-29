@@ -6,7 +6,7 @@
   "type": "module",
   "dependencies": {
     "marked": "^11.2.0",
-    "xss": "^1.0.14"
+    "xss": "^1.0.15"
   },
   "scripts": {
     "build": "node scripts/generate-test-user.js > scripts/seed-db.sql",

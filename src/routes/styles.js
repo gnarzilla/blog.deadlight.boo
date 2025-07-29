@@ -709,6 +709,16 @@ const baseStyles = `
   .muted {
     color: var(--text-secondary);
   }
+
+  .link-button {
+    background: none;
+    border: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+  }
   `;
 
   // Dark theme variables

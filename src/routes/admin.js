@@ -1,190 +1,70 @@
-// src/routes/admin.js
+// src/routes/admin.js - Refactored to use deadlight-lib
 import { 
   renderAddPostForm, 
   renderEditPostForm, 
-  renderAddUserForm,  // Add this to your templates
+  renderAddUserForm, 
   renderDeleteConfirmation
 } from '../templates/admin/index.js';
-import { checkAuth, hashPassword } from '../utils/auth.js';
+import { checkAuth } from '../utils/auth.js';
 import { renderTemplate } from '../templates/base.js';
-import { renderSettings } from '../templates/admin/settings.js';
-import { renderAdminDashboard } from '../templates/admin/dashboard.js';
-import { renderUserManagement } from '../templates/admin/userManagement.js';
-import { siteConfig } from '../config.js';
+import { UserModel, PostModel } from '../../../../lib.deadlight/core/src/db/models/index.js';
+import { Logger } from '../../../../lib.deadlight/core/src/logging/logger.js';
+import { DatabaseError } from '../../../../lib.deadlight/core/src/db/base.js';
 
 export const adminRoutes = {
-    '/admin': {
+  '/admin': {
     GET: async (request, env) => {
+      const postModel = new PostModel(env.DB);
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
       try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return Response.redirect(new URL(request.url).origin + '/login', 303);
-        }
+        // Get paginated posts with author info
+        const { posts, pagination } = await postModel.getPaginated({
+          page: 1,
+          limit: 20,
+          includeAuthor: true,
+          orderBy: 'created_at',
+          orderDirection: 'DESC'
+        });
 
-        // Gather statistics
-        const stats = await env.DB.prepare(`
-          SELECT 
-            (SELECT COUNT(*) FROM posts) as total_posts,
-            (SELECT COUNT(*) FROM users) as total_users,
-            (SELECT COUNT(*) FROM posts WHERE date(created_at) = date('now')) as posts_today,
-            (SELECT COUNT(*) FROM request_logs WHERE date(timestamp) >= date('now', '-7 days')) as weekly_requests
-        `).first();
+        const totalPosts = await postModel.count();
 
-        // Get recent posts
-        const recentPosts = await env.DB.prepare(`
-          SELECT p.*, u.username as author_username 
-          FROM posts p
-          JOIN users u ON p.user_id = u.id
-          ORDER BY p.created_at DESC
-          LIMIT 5
-        `).all();
+        const content = `
+          <h1>Admin Dashboard</h1>
+          <div class="stats">
+            <p>Total Posts: ${totalPosts}</p>
+          </div>
+          <div class="admin-actions">
+            <a href="/admin/add" class="button">Add New Post</a>
+            <a href="/admin/users" class="button">Manage Users</a>
+          </div>
+          <div class="posts-list">
+            <h2>Recent Posts</h2>
+            ${posts.map(post => `
+              <div class="post-item">
+                <h3>${post.title}</h3>
+                <p>By: ${post.author_username} | Created: ${new Date(post.created_at).toLocaleDateString()}</p>
+                <div class="post-actions">
+                  <a href="/admin/edit/${post.id}" class="button small">Edit</a>
+                  <form method="POST" action="/admin/delete/${post.id}" style="display: inline;">
+                    <button type="submit" class="button small danger" onclick="return confirm('Delete this post?')">Delete</button>
+                  </form>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
 
-        // Get request stats for chart (last 7 days)
-        const requestStats = await env.DB.prepare(`
-          SELECT 
-            date(timestamp) as day,
-            COUNT(*) as requests
-          FROM request_logs
-          WHERE date(timestamp) >= date('now', '-7 days')
-          GROUP BY date(timestamp)
-          ORDER BY day
-        `).all();
-
-        return new Response(renderAdminDashboard(stats, recentPosts.results, requestStats.results, user), {
+        return new Response(renderTemplate('Admin Dashboard', content, user), {
           headers: { 'Content-Type': 'text/html' }
         });
       } catch (error) {
         console.error('Admin dashboard error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    }
-  },
-
-  // Add to admin routes
-  '/admin/users': {
-    GET: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return Response.redirect(new URL(request.url).origin + '/login', 303);
-        }
-
-        const users = await env.DB.prepare(`
-          SELECT 
-            u.*,
-            COUNT(p.id) as post_count,
-            MAX(p.created_at) as last_post
-          FROM users u
-          LEFT JOIN posts p ON u.id = p.user_id
-          GROUP BY u.id
-          ORDER BY u.created_at DESC
-        `).all();
-
-        return new Response(renderUserManagement(users.results, user), {
-          headers: { 'Content-Type': 'text/html' }
-        });
-      } catch (error) {
-        console.error('User management error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    }
-  },
-
-  // Add to src/routes/admin.js
-  '/admin/users/delete/:id': {
-    POST: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
-        }
-
-        const userId = parseInt(request.params.id);
-        
-        // Prevent self-deletion
-        if (userId === user.id) {
-          return new Response('Cannot delete your own account', { status: 400 });
-        }
-
-        // Check if user exists
-        const targetUser = await env.DB.prepare(
-          'SELECT * FROM users WHERE id = ?'
-        ).bind(userId).first();
-
-        if (!targetUser) {
-          return new Response('User not found', { status: 404 });
-        }
-
-        // Delete user and their posts (CASCADE should handle posts)
-        await env.DB.prepare(
-          'DELETE FROM users WHERE id = ?'
-        ).bind(userId).run();
-
-        return Response.redirect(new URL(request.url).origin + '/admin/users', 303);
-      } catch (error) {
-        console.error('Delete user error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    }
-  },
-
-  // Add to src/routes/admin.js
-  '/admin/settings': {
-    GET: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return Response.redirect(new URL(request.url).origin + '/login', 303);
-        }
-
-        // For now use the config file values
-        // Later you could store these in D1
-        const settings = {
-          title: siteConfig.title,
-          description: siteConfig.description,
-          postsPerPage: siteConfig.postsPerPage,
-          dateFormat: siteConfig.dateFormat
-        };
-
-        return new Response(renderSettings(settings, user), {
-          headers: { 'Content-Type': 'text/html' }
-        });
-      } catch (error) {
-        console.error('Settings error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    }
-  },
-
-  '/admin/delete/:id': {
-    POST: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
-        }
-
-        const postId = request.params.id;
-        
-        // Verify post exists
-        const post = await env.DB.prepare(
-          'SELECT * FROM posts WHERE id = ?'
-        ).bind(postId).first();
-
-        if (!post) {
-          return new Response('Post not found', { status: 404 });
-        }
-
-        // Delete the post
-        await env.DB.prepare(
-          'DELETE FROM posts WHERE id = ?'
-        ).bind(postId).run();
-
-        // Redirect to homepage after successful deletion
-        return Response.redirect(new URL(request.url).origin + '/', 303);
-      } catch (error) {
-        console.error('Delete post error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
+        return new Response('Internal server error', { status: 500 });
       }
     }
   },
@@ -193,156 +73,296 @@ export const adminRoutes = {
     GET: async (request, env) => {
       const user = await checkAuth(request, env);
       if (!user) {
-        return new Response('Unauthorized', { status: 401 });
+        return Response.redirect(`${new URL(request.url).origin}/login`);
       }
-      
-      return new Response(renderAddPostForm(), {
+
+      return new Response(renderAddPostForm(user), {
         headers: { 'Content-Type': 'text/html' }
       });
     },
-    
+
     POST: async (request, env) => {
+      const postModel = new PostModel(env.DB);
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
       try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
-        }
-
-        // Create new request to handle FormData
-        const formDataRequest = new Request(request.url, {
-          method: request.method,
-          headers: request.headers,
-          body: request.body
-        });
-
-        const formData = await formDataRequest.formData();
+        const formData = await request.formData();
         const title = formData.get('title');
         const content = formData.get('content');
 
-        console.log('Adding post:', { title, contentLength: content?.length });
+        logger.info('Adding post', { title, contentLength: content?.length });
 
         if (!title || !content) {
-          return new Response('Missing title or content', { status: 400 });
+          return new Response('Title and content are required', { status: 400 });
         }
 
-        await env.DB.prepare(
-          'INSERT INTO posts (title, content, user_id) VALUES (?, ?, ?)'
-        ).bind(title, content, user.id).run();
-
-        return Response.redirect(new URL(request.url).origin + '/', 303);
-      } catch (error) {
-        console.error('Add post error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    }
-  },
-
-  '/admin/users/add': {
-    GET: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
-        }
-
-        return new Response(renderAddUserForm(user), {
-          headers: { 'Content-Type': 'text/html' }
-        });
-      } catch (error) {
-        console.error('Get add user form error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
-      }
-    },
-    
-    POST: async (request, env) => {
-      try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
-        }
-
-        // Create new request to handle FormData
-        const formDataRequest = new Request(request.url, {
-          method: request.method,
-          headers: request.headers,
-          body: request.body
+        // Create post using model
+        const newPost = await postModel.create({
+          title,
+          content,
+          userId: user.id
         });
 
-        const formData = await formDataRequest.formData();
-        const username = formData.get('username');
-        const password = formData.get('password');
+        logger.info('Post created successfully', { postId: newPost.id, title });
 
-        if (!username || !password) {
-          return new Response('Missing username or password', { status: 400 });
-        }
-
-        const { hash, salt } = await hashPassword(password);
-        
-        await env.DB.prepare(
-          'INSERT INTO users (username, password, salt) VALUES (?, ?, ?)'
-        ).bind(username, hash, salt).run();
-        
-        return Response.redirect(new URL(request.url).origin + '/', 303);
+        return Response.redirect(`${new URL(request.url).origin}/`);
       } catch (error) {
-        console.error('Add user error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
+        logger.error('Error adding post', { error: error.message });
+        
+        if (error instanceof DatabaseError) {
+          return new Response(`Database error: ${error.message}`, { status: 500 });
+        }
+        
+        return new Response('Failed to add post', { status: 500 });
       }
     }
   },
 
   '/admin/edit/:id': {
     GET: async (request, env) => {
+      const postModel = new PostModel(env.DB);
       const user = await checkAuth(request, env);
+      
       if (!user) {
-        return new Response('Unauthorized', { status: 401 });
+        return Response.redirect(`${new URL(request.url).origin}/login`);
       }
 
-      const postId = request.params.id;
-      const post = await env.DB.prepare(
-        'SELECT * FROM posts WHERE id = ?'
-      ).bind(postId).first();
-
-      if (!post) {
-        return new Response('Post not found', { status: 404 });
-      }
-
-      return new Response(renderEditPostForm(post), {
-        headers: { 'Content-Type': 'text/html' }
-      });
-    },
-    
-    POST: async (request, env) => {
       try {
-        const user = await checkAuth(request, env);
-        if (!user) {
-          return new Response('Unauthorized', { status: 401 });
+        const postId = request.params.id;
+        const post = await postModel.getById(postId);
+
+        if (!post) {
+          return new Response('Post not found', { status: 404 });
         }
 
-        const postId = request.params.id;
-        
-        // Create new request to handle FormData
-        const formDataRequest = new Request(request.url, {
-          method: request.method,
-          headers: request.headers,
-          body: request.body
+        return new Response(renderEditPostForm(post, user), {
+          headers: { 'Content-Type': 'text/html' }
         });
+      } catch (error) {
+        console.error('Error loading post for edit:', error);
+        return new Response('Internal server error', { status: 500 });
+      }
+    },
 
-        const formData = await formDataRequest.formData();
+    POST: async (request, env) => {
+      const postModel = new PostModel(env.DB);
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const postId = request.params.id;
+        const formData = await request.formData();
         const title = formData.get('title');
         const content = formData.get('content');
 
         if (!title || !content) {
-          return new Response('Missing title or content', { status: 400 });
+          return new Response('Title and content are required', { status: 400 });
         }
 
-        await env.DB.prepare(
-          'UPDATE posts SET title = ?, content = ? WHERE id = ?'
-        ).bind(title, content, postId).run();
+        // Update post using model
+        const updatedPost = await postModel.update(postId, { title, content });
 
-        return Response.redirect(new URL(request.url).origin + '/', 303);
+        logger.info('Post updated successfully', { postId, title });
+
+        return Response.redirect(`${new URL(request.url).origin}/`);
       } catch (error) {
-        console.error('Edit post error:', error);
-        return new Response(`Error: ${error.message}`, { status: 500 });
+        logger.error('Error updating post', { postId: request.params.id, error: error.message });
+        
+        if (error instanceof DatabaseError && error.code === 'NOT_FOUND') {
+          return new Response('Post not found', { status: 404 });
+        }
+        
+        return new Response('Failed to update post', { status: 500 });
+      }
+    }
+  },
+
+  '/admin/delete/:id': {
+    POST: async (request, env) => {
+      const postModel = new PostModel(env.DB);
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const postId = request.params.id;
+        
+        // Delete post using model
+        await postModel.delete(postId);
+
+        logger.info('Post deleted successfully', { postId });
+
+        return Response.redirect(`${new URL(request.url).origin}/`);
+      } catch (error) {
+        logger.error('Error deleting post', { postId: request.params.id, error: error.message });
+        
+        if (error instanceof DatabaseError && error.code === 'NOT_FOUND') {
+          return new Response('Post not found', { status: 404 });
+        }
+        
+        return new Response('Failed to delete post', { status: 500 });
+      }
+    }
+  },
+
+  '/admin/users': {
+    GET: async (request, env) => {
+      const userModel = new UserModel(env.DB);
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        // Get all users (paginated in the future if needed)
+        const users = await userModel.list({ limit: 50 });
+        const totalUsers = await userModel.count();
+
+        const content = `
+          <h1>User Management</h1>
+          <div class="stats">
+            <p>Total Users: ${totalUsers}</p>
+          </div>
+          <div class="admin-actions">
+            <a href="/admin/users/add" class="button">Add New User</a>
+            <a href="/admin" class="button secondary">Back to Dashboard</a>
+          </div>
+          <div class="users-list">
+            <h2>All Users</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Created</th>
+                  <th>Last Login</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${users.map(u => `
+                  <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.role || 'user'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>${u.last_login ? new Date(u.last_login).toLocaleDateString() : 'Never'}</td>
+                    <td>
+                      <form method="POST" action="/admin/users/delete/${u.id}" style="display: inline;">
+                        <button type="submit" class="button small danger" 
+                                onclick="return confirm('Delete user ${u.username}?')"
+                                ${u.id === user.id ? 'disabled title="Cannot delete yourself"' : ''}>
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        return new Response(renderTemplate('User Management', content, user), {
+          headers: { 'Content-Type': 'text/html' }
+        });
+      } catch (error) {
+        console.error('User management error:', error);
+        return new Response('Internal server error', { status: 500 });
+      }
+    }
+  },
+
+  '/admin/users/add': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      return new Response(renderAddUserForm(user), {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    },
+
+    POST: async (request, env) => {
+      const userModel = new UserModel(env.DB);
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const formData = await request.formData();
+        const username = formData.get('username');
+        const password = formData.get('password');
+        const role = formData.get('role') || 'user';
+
+        if (!username || !password) {
+          return new Response('Username and password are required', { status: 400 });
+        }
+
+        // Create user using model
+        const newUser = await userModel.create({ username, password, role });
+
+        logger.info('User created successfully', { userId: newUser.id, username, role });
+
+        return Response.redirect(`${new URL(request.url).origin}/admin/users`);
+      } catch (error) {
+        logger.error('Error creating user', { error: error.message });
+        
+        if (error instanceof DatabaseError && error.code === 'DUPLICATE_USER') {
+          return new Response('Username already exists', { status: 400 });
+        }
+        
+        return new Response('Failed to create user', { status: 500 });
+      }
+    }
+  },
+
+  '/admin/users/delete/:id': {
+    POST: async (request, env) => {
+      const userModel = new UserModel(env.DB);
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const userId = parseInt(request.params.id);
+        
+        // Prevent self-deletion
+        if (userId === user.id) {
+          return new Response('Cannot delete yourself', { status: 400 });
+        }
+
+        // Delete user using model
+        await userModel.delete(userId);
+
+        logger.info('User deleted successfully', { userId });
+
+        return Response.redirect(`${new URL(request.url).origin}/admin/users`);
+      } catch (error) {
+        logger.error('Error deleting user', { userId: request.params.id, error: error.message });
+        return new Response('Failed to delete user', { status: 500 });
       }
     }
   }
