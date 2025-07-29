@@ -3,3 +3,4 @@ node_modules/
 *:Zone.Identifier
 .env
 wrangler.toml
+.git

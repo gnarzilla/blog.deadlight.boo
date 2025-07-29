@@ -21,7 +21,37 @@ export function renderAuthTemplate(title, bodyContent) {
       </header>
       ${bodyContent}
       <script>
-        // Theme toggle logic...
+        document.addEventListener('DOMContentLoaded', () => {
+          const themeToggle = document.getElementById('theme-toggle');
+          const html = document.documentElement;
+          const stylesheet = document.getElementById('theme-stylesheet');
+          
+          // Load saved theme
+          let currentTheme = localStorage.getItem('theme') || 'dark';
+          html.setAttribute('data-theme', currentTheme);
+          stylesheet.href = '/styles/' + currentTheme + '_min.css';
+
+          // Update theme icon
+          const themeIcon = themeToggle.querySelector('.theme-icon');
+          themeIcon.textContent = currentTheme === 'dark' ? '♧' : '◇';
+          
+          // Handle theme toggle
+          themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // Update localStorage
+            localStorage.setItem('theme', currentTheme);
+            
+            // Update HTML attribute
+            html.setAttribute('data-theme', currentTheme);
+            
+            // Update stylesheet
+            stylesheet.href = '/styles/' + currentTheme + '_min.css';
+            
+            // Update icon
+            themeIcon.textContent = currentTheme === 'dark' ? '♡' : '♤';
+          });
+        });
       </script>
     </body>
     </html>

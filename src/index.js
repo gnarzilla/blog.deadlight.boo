@@ -7,6 +7,7 @@ import { adminRoutes } from './routes/admin.js';
 import { blogRoutes } from './routes/blog.js';
 import { errorMiddleware } from './middleware/error.js';
 import { loggingMiddleware } from './middleware/logging.js';
+import { rateLimitMiddleware, securityHeadersMiddleware } from '../../../lib.deadlight/core/src/security/middleware.js';
 
 const router = new Router();
 
@@ -32,7 +33,12 @@ console.log('Registering routes...');
 });
 
 export default {
-  async fetch(request, env) {
-    return router.handle(request, env);
+  async fetch(request, env, ctx) {
+    // Apply security middleware
+    return rateLimitMiddleware(request, env, ctx, () =>
+      securityHeadersMiddleware(request, env, ctx, () =>
+        router.handle(request, env, ctx)
+      )
+    );
   }
 };
