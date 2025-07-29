@@ -8,7 +8,6 @@ export function renderTemplate(title, bodyContent, user = null) {
    ? `
     <a href="/admin">Dashboard</a> |
     <a href="/admin/add">Create New Post</a> |
-    <a href="/login">Login</a> |
     <a href="/logout">Logout</a>
     `
   : `<a href="/login">Login</a>`;

@@ -1,7 +1,7 @@
 // src/templates/admin/addPost.js
 import { renderTemplate } from '../base.js';
 
-export function renderAddPostForm() {
+export function renderAddPostForm(user) {  // <-- Add user parameter
   return renderTemplate(
     'Add Post',
     `
@@ -12,6 +12,7 @@ export function renderAddPostForm() {
       <button type="submit">Add Post</button>
       <a href="/">Cancel</a>
     </form>
-    `
+    `,
+    user  // <-- Pass user to renderTemplate
   );
 }

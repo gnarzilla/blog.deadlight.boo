@@ -2,6 +2,8 @@
 
 A minimalist, edge-native blog platform built on Cloudflare Workers. Features a clean architecture, instant global deployment, and everything you need for a modern blog. The WordPress alternative that actually respects your readers.
 
+[Support is greatly appreciated!  Buy me a coffee](coff.ee/gnarzillah)
+
 🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
 
 <img width="2222" height="1239" alt="image" src="https://github.com/user-attachments/assets/05862ed5-d3cc-4c7f-9aff-8d01ed093237" />

@@ -1,7 +1,7 @@
 // src/templates/admin/editPost.js
 import { renderTemplate } from '../base.js';
 
-export function renderEditPostForm(post) {
+export function renderEditPostForm(post, user) {
   return renderTemplate(
     'Edit Post',
     `
@@ -12,6 +12,7 @@ export function renderEditPostForm(post) {
       <button type="submit">Update Post</button>
       <a href="/">Cancel</a>
     </form>
-    `
+    `,
+    user
   );
 }
