@@ -15,6 +15,8 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 <img width="1331" height="1195" alt="image" src="https://github.com/user-attachments/assets/610135fd-fb39-4035-b36f-616691613d9d" />
 
+## Edit Post
+
 <img width="1331" height="1205" alt="image" src="https://github.com/user-attachments/assets/28653dcb-e7ce-4d4f-9da1-316b80869580" />
 
 
@@ -225,8 +227,11 @@ bash
 # Via admin interface (when logged in as admin)
 https://your-site/admin/users/add
 
-# Via script
-node scripts/create-user.js username password role
+# Generate the SQL and pipe it to a file
+node scripts/generate-test-user.js > init-admin.sql
+
+# Apply it to your remote database, remove the remote tag for local dev environment
+wrangler d1 execute blog_content_v3 --remote --file init-admin.sql 
 ```
 
 # Customize styling
@@ -250,7 +255,7 @@ Edit theme variables in src/routes/styles.js. The CSS uses variables for easy cu
 
 # Future Considerations
 -📊 Analytics service (privacy-first)
--💬 Comments system (no tracking)
+-💬 Comments system (no tracking) with upvotes/downvotes
 -🖼️ Media management with R2
 -📱 Mobile app API
 -🔌 Plugin system
