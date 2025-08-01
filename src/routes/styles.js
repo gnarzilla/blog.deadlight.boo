@@ -719,59 +719,367 @@ const baseStyles = `
     font: inherit;
     padding: 0;
   }
-  `;
 
-  // Dark theme variables
-  const darkTheme = `
-    :root[data-theme="dark"] {
-      /* Colors */
-      --bg-primary: #000;
-      --bg-secondary: #1a1a1a;
-      --text-primary: #fff;
-      --text-secondary: #888;
-      --border-color: #333;
-      --border-hover: #555;
-      
-      /* Links */
-      --link-color: #8ba3c7;
-      --link-hover: #adc3e7;
-      
-      /* Navigation */
-      --nav-hover-bg: #333;
-      --nav-hover-color: #fff;
-      
-      /* Buttons - monochrome only */
-      --button-primary-bg: #333;
-      --button-primary-text: #fff;
-      --button-primary-hover: #555;
-      
-      --button-secondary-bg: #444;  /* Edit button - slightly lighter */
-      --button-secondary-text: #fff;
-      --button-secondary-hover: #666;
-      
-      --button-danger-bg: #614f4fff;  /* Delete button - pure black */
-      --button-danger-text: #fff;
-      --button-danger-hover: #ada6a6;
+  /* Admin Dashboard Specific */
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
 
-      --theme-toggle-box-shadow: #ffffffff;
-      --theme-toggle-background-color: #000;
-      
-      /* Forms */
-      --input-bg: #121212;
-      --input-border: #333;
-      
-      /* Code */
-      --code-bg: #1a1a1a;
-      
-      /* Messages */
-      --success-bg: #0a4f0a;
-      --success-text: #90ee90;
-      --success-border: #0f7f0f;
-      
-      --error-bg: #4f0a0a;
-      --error-text: #ff9090;
-      --error-border: #7f0f0f;
-    }
+  .page-header h1 {
+    margin: 0 0 1rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  .admin-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-nav a {
+    color: var(--link-color);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    transition: var(--transition);
+  }
+
+  .admin-nav a:hover {
+    color: var(--link-hover);
+  }
+
+  .admin-nav a.active {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .nav-separator {
+    color: var(--text-secondary);
+    user-select: none;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card {
+    background: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: var(--transition);
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card h3 {
+    margin: 0 0 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  /* Quick Actions */
+  .quick-actions {
+    margin-bottom: 3rem;
+  }
+
+  .quick-actions h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Chart Section */
+  .chart-section {
+    margin-bottom: 3rem;
+  }
+
+  .chart-section h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .simple-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 250px;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    gap: 1rem;
+  }
+
+  .chart-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    height: 100%;
+  }
+
+  .chart-bar .bar {
+    width: 100%;
+    background: var(--button-primary-bg);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    transition: height 0.3s ease;
+    min-height: 2px;
+  }
+
+  .chart-bar .value {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .chart-bar .label {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* Recent Posts Section */
+  .recent-posts-section {
+    margin-bottom: 3rem;
+  }
+
+  .recent-posts-section h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  /* Data Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .data-table th {
+    background: var(--bg-primary);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--bg-primary);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .post-title-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .post-title-link:hover {
+    color: var(--link-color);
+  }
+
+  .action-cell {
+    white-space: nowrap;
+  }
+
+  .small-button {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+    margin-right: 0.5rem;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .empty-state p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+
+  .no-data {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+  }
+
+  /* Form improvements */
+  .admin-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .post-form {
+    background: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .post-meta {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .post-meta p {
+    margin: 0.25rem 0;
+  }
+
+  .checkbox-group {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    margin: 1.5rem 0;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    width: auto;
+    height: 1.2rem;
+    margin: 0 0.75rem 0 0;
+    cursor: pointer;
+  }
+
+  .checkbox-label span {
+    user-select: none;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .button.primary {
+    background-color: var(--link-color);
+    color: white;
+  }
+
+  .button.primary:hover {
+    background-color: var(--link-hover);
+  }
+`;
+
+// Dark theme variables
+const darkTheme = `
+  :root[data-theme="dark"] {
+    /* Colors */
+    --bg-primary: #000;
+    --bg-secondary: #1a1a1a;
+    --text-primary: #fff;
+    --text-secondary: #888;
+    --border-color: #333;
+    --border-hover: #555;
+    
+    /* Links */
+    --link-color: #8ba3c7;
+    --link-hover: #adc3e7;
+    
+    /* Navigation */
+    --nav-hover-bg: #333;
+    --nav-hover-color: #fff;
+    
+    /* Buttons - monochrome only */
+    --button-primary-bg: #333;
+    --button-primary-text: #fff;
+    --button-primary-hover: #555;
+    
+    --button-secondary-bg: #444;  /* Edit button - slightly lighter */
+    --button-secondary-text: #fff;
+    --button-secondary-hover: #666;
+    
+    --button-danger-bg: #614f4fff;  /* Delete button - pure black */
+    --button-danger-text: #fff;
+    --button-danger-hover: #ada6a6;
+
+    --theme-toggle-box-shadow: #ffffffff;
+    --theme-toggle-background-color: #000;
+    
+    /* Forms */
+    --input-bg: #121212;
+    --input-border: #333;
+    
+    /* Code */
+    --code-bg: #1a1a1a;
+    
+    /* Messages */
+    --success-bg: #0a4f0a;
+    --success-text: #90ee90;
+    --success-border: #0f7f0f;
+    
+    --error-bg: #4f0a0a;
+    --error-text: #ff9090;
+    --error-border: #7f0f0f;
+  }
   `;
 
   // Light theme variables

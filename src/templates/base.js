@@ -5,12 +5,13 @@ export function renderTemplate(title, bodyContent, user = null) {
   const pageTitle = title === 'home' ? siteConfig.title : `${title} | ${siteConfig.title}`;
   
   const authLinks = user 
-   ? `
-    <a href="/admin">Dashboard</a> |
-    <a href="/admin/add">Create New Post</a> |
-    <a href="/logout">Logout</a>
-    `
-  : `<a href="/login">Login</a>`;
+    ? `
+      <a href="/admin">Dashboard</a> |
+      <a href="/admin/add">Create New Post</a> |
+      <a href="/admin/settings">Settings</a> |
+      <a href="/logout">Logout</a>
+      `
+    : `<a href="/login">Login</a>`;
 
   return `
     <!DOCTYPE html>

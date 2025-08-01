@@ -15,6 +15,7 @@ export const adminRoutes = {
   '/admin': {
     GET: async (request, env) => {
       const postModel = new PostModel(env.DB);
+      const userModel = new UserModel(env.DB);
       const user = await checkAuth(request, env);
       
       if (!user) {
@@ -22,49 +23,105 @@ export const adminRoutes = {
       }
 
       try {
-        // Get paginated posts with author info
-        const { posts, pagination } = await postModel.getPaginated({
+        // Gather statistics
+        const totalPosts = await postModel.count();
+        const totalUsers = await userModel.count();
+        
+        // Get posts created today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const postsToday = await env.DB
+          .prepare('SELECT COUNT(*) as count FROM posts WHERE created_at >= ?')
+          .bind(today.toISOString())
+          .first();
+        
+        // For now, just use total posts since we don't have published column
+        const publishedPosts = totalPosts;
+
+        // Get recent posts with author info
+        const { posts } = await postModel.getPaginated({
           page: 1,
-          limit: 20,
+          limit: 10,
           includeAuthor: true,
           orderBy: 'created_at',
-          orderDirection: 'DESC'
+          orderDirection: 'DESC',
+          publishedOnly: false  // Show all posts in admin
         });
 
-        const totalPosts = await postModel.count();
+        const stats = {
+          totalPosts,
+          totalUsers,
+          postsToday: postsToday?.count || 0,
+          publishedPosts
+        };
 
-        const content = `
-          <h1>Admin Dashboard</h1>
-          <div class="stats">
-            <p>Total Posts: ${totalPosts}</p>
-          </div>
-          <div class="admin-actions">
-            <a href="/admin/add" class="button">Add New Post</a>
-            <a href="/admin/users" class="button">Manage Users</a>
-          </div>
-          <div class="posts-list">
-            <h2>Recent Posts</h2>
-            ${posts.map(post => `
-              <div class="post-item">
-                <h3>${post.title}</h3>
-                <p>By: ${post.author_username} | Created: ${new Date(post.created_at).toLocaleDateString()}</p>
-                <div class="post-actions">
-                  <a href="/admin/edit/${post.id}" class="button small">Edit</a>
-                  <form method="POST" action="/admin/delete/${post.id}" style="display: inline;">
-                    <button type="submit" class="button small danger" onclick="return confirm('Delete this post?')">Delete</button>
-                  </form>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
+        // For now, pass empty array for requestStats until we implement request logging
+        const requestStats = [];
 
-        return new Response(renderTemplate('Admin Dashboard', content, user), {
+        // Import and use the dashboard template
+        const { renderAdminDashboard } = await import('../templates/admin/dashboard.js');
+        
+        return new Response(renderAdminDashboard(stats, posts, requestStats, user), {
           headers: { 'Content-Type': 'text/html' }
         });
+        
       } catch (error) {
         console.error('Admin dashboard error:', error);
         return new Response('Internal server error', { status: 500 });
+      }
+    }
+  },
+
+  // Add to src/routes/admin.js adminRoutes object
+  '/admin/settings': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const { SettingsModel } = await import('../../../../lib.deadlight/core/src/db/models/index.js');
+        const settingsModel = new SettingsModel(env.DB);
+        const settings = await settingsModel.getAll();
+        
+        const { renderSettings } = await import('../templates/admin/settings.js');
+        return new Response(renderSettings(settings, user), {
+          headers: { 'Content-Type': 'text/html' }
+        });
+      } catch (error) {
+        console.error('Settings error:', error);
+        return new Response('Internal server error', { status: 500 });
+      }
+    },
+
+    POST: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        const formData = await request.formData();
+        const { SettingsModel } = await import('../../../../lib.deadlight/core/src/db/models/index.js');
+        const settingsModel = new SettingsModel(env.DB);
+        
+        // Update text/number settings
+        await settingsModel.set('site_title', formData.get('site_title') || '', 'string');
+        await settingsModel.set('site_description', formData.get('site_description') || '', 'string');
+        await settingsModel.set('posts_per_page', formData.get('posts_per_page') || '10', 'number');
+        await settingsModel.set('date_format', formData.get('date_format') || 'M/D/YYYY', 'string');
+        await settingsModel.set('timezone', formData.get('timezone') || 'UTC', 'string');
+        
+        // Update boolean settings (checkboxes)
+        await settingsModel.set('enable_registration', formData.has('enable_registration'), 'boolean');
+        await settingsModel.set('require_login_to_read', formData.has('require_login_to_read'), 'boolean');
+        await settingsModel.set('maintenance_mode', formData.has('maintenance_mode'), 'boolean');
+        
+        return Response.redirect(`${new URL(request.url).origin}/admin`);
+      } catch (error) {
+        console.error('Settings update error:', error);
+        return new Response('Failed to update settings', { status: 500 });
       }
     }
   },
@@ -81,6 +138,7 @@ export const adminRoutes = {
       });
     },
 
+    // src/routes/admin.js - Update the POST handler for /admin/add
     POST: async (request, env) => {
       const postModel = new PostModel(env.DB);
       const logger = new Logger({ context: 'admin' });
@@ -94,21 +152,36 @@ export const adminRoutes = {
         const formData = await request.formData();
         const title = formData.get('title');
         const content = formData.get('content');
+        const slug = formData.get('slug') || '';
+        const excerpt = formData.get('excerpt') || '';
+        // Check if checkbox is present (checkboxes only send value when checked)
+        const published = formData.has('published');
 
-        logger.info('Adding post', { title, contentLength: content?.length });
+        logger.info('Adding post', { 
+          title, 
+          contentLength: content?.length,
+          published // Log the published status
+        });
 
         if (!title || !content) {
           return new Response('Title and content are required', { status: 400 });
         }
 
-        // Create post using model
+        // Create post using model with all required fields
         const newPost = await postModel.create({
           title,
           content,
-          userId: user.id
+          slug: slug || postModel.generateSlug(title),
+          excerpt,
+          author_id: user.id,
+          published // This will be true/false
         });
 
-        logger.info('Post created successfully', { postId: newPost.id, title });
+        logger.info('Post created successfully', { 
+          postId: newPost.id, 
+          title,
+          published: newPost.published 
+        });
 
         return Response.redirect(`${new URL(request.url).origin}/`);
       } catch (error) {
@@ -149,6 +222,7 @@ export const adminRoutes = {
       }
     },
 
+    // src/routes/admin.js - Update the POST handler for /admin/edit/:id
     POST: async (request, env) => {
       const postModel = new PostModel(env.DB);
       const logger = new Logger({ context: 'admin' });
@@ -160,18 +234,44 @@ export const adminRoutes = {
 
       try {
         const postId = request.params.id;
+        
+        // Get the existing post first
+        const existingPost = await postModel.getById(postId);
+        if (!existingPost) {
+          return new Response('Post not found', { status: 404 });
+        }
+        
         const formData = await request.formData();
         const title = formData.get('title');
         const content = formData.get('content');
-
+        const slug = formData.get('slug') || '';
+        const excerpt = formData.get('excerpt') || '';
+        const published = formData.has('published');
+        
         if (!title || !content) {
           return new Response('Title and content are required', { status: 400 });
         }
-
+        
+        // Only update slug if it changed and is not empty
+        const updatedSlug = slug && slug !== existingPost.slug 
+          ? slug 
+          : existingPost.slug;
+        
         // Update post using model
-        const updatedPost = await postModel.update(postId, { title, content });
+        const updatedPost = await postModel.update(postId, { 
+          title, 
+          content,
+          slug: updatedSlug,
+          excerpt,
+          published
+        });
 
-        logger.info('Post updated successfully', { postId, title });
+        logger.info('Post updated successfully', { 
+          postId, 
+          title,
+          slug: updatedPost.slug,
+          published: updatedPost.published 
+        });
 
         return Response.redirect(`${new URL(request.url).origin}/`);
       } catch (error) {
@@ -181,7 +281,7 @@ export const adminRoutes = {
           return new Response('Post not found', { status: 404 });
         }
         
-        return new Response('Failed to update post', { status: 500 });
+        return new Response(`Failed to update post: ${error.message}`, { status: 500 });
       }
     }
   },

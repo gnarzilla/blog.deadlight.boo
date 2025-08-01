@@ -205,6 +205,29 @@ export const authRoutes = {
     }
   },
 
+  // Add this to src/routes/auth.js temporarily
+  '/generate-admin': {
+    GET: async (request, env) => {
+      const { hashPassword } = await import('../../../../lib.deadlight/core/src/auth/password.js');
+      
+      const password = 'gross-gnar';
+      const { hash, salt } = await hashPassword(password);
+      
+      const html = `
+        <h1>Admin User Creation</h1>
+        <p>Password: ${password}</p>
+        <p>Hash: ${hash}</p>
+        <p>Salt: ${salt}</p>
+        <h2>Run this command:</h2>
+        <pre>wrangler d1 execute blog_content_v3 --local --command "INSERT INTO users (username, password, salt, role) VALUES ('admin', '${hash}', '${salt}', 'admin')"</pre>
+      `;
+      
+      return new Response(html, {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    }
+  },
+
   '/clear-login-limit': {
     GET: async (request, env) => {
       const identifier = request.headers.get('CF-Connecting-IP') || 

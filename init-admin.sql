@@ -1,18 +1,27 @@
--- Update schema.sql to match the model's expectations
-CREATE TABLE IF NOT EXISTS users (
+
+-- Enable foreign key constraints
+PRAGMA foreign_keys = ON;
+
+-- Drop tables in correct order (child tables first)
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS request_logs;
+
+-- Create users table first (parent table)
+CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,  -- Changed from password_hash
-    salt TEXT NOT NULL,      -- Added salt column
+    password TEXT NOT NULL,
+    salt TEXT NOT NULL,
     role TEXT DEFAULT 'user',
     email TEXT,
     last_login DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
--- Create posts table with proper foreign key and additional columns
-CREATE TABLE IF NOT EXISTS posts (
+-- Create posts table with updated schema
+CREATE TABLE posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     slug TEXT UNIQUE NOT NULL,
@@ -25,14 +34,16 @@ CREATE TABLE IF NOT EXISTS posts (
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_posts_published ON posts(published);
-CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
-CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at);
-CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
+-- Create settings table
+CREATE TABLE settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  type TEXT DEFAULT 'string',
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
--- Optional: Add request_logs table if you want logging
-CREATE TABLE IF NOT EXISTS request_logs (
+-- Create request_logs table
+CREATE TABLE request_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     path TEXT NOT NULL,
@@ -46,16 +57,24 @@ CREATE TABLE IF NOT EXISTS request_logs (
     error TEXT
 );
 
--- Create settings table for site configuration
-CREATE TABLE IF NOT EXISTS settings (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL,
-  type TEXT DEFAULT 'string', -- string, number, boolean
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+-- Create indexes for better performance
+CREATE INDEX idx_posts_published ON posts(published);
+CREATE INDEX idx_posts_author ON posts(author_id);
+CREATE INDEX idx_posts_created ON posts(created_at);
+CREATE INDEX idx_posts_slug ON posts(slug);
+
+-- Insert admin user with role
+INSERT INTO users (username, password, salt, role, email)
+VALUES (
+  'admin',
+  'eaffa33eb2695d47309f27d1985513957d159af7dc7d7c84463fa852148e332d',
+  '20b148bcba96b32219053f6cfbaf4472',
+  'admin',
+  'admin@deadlight.boo'
 );
 
 -- Insert default settings
-INSERT OR IGNORE INTO settings (key, value, type) VALUES 
+INSERT INTO settings (key, value, type) VALUES 
   ('site_title', 'deadlight.boo', 'string'),
   ('site_description', 'A minimal blog framework', 'string'),
   ('posts_per_page', '10', 'number'),
