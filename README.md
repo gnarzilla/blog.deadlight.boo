@@ -1,6 +1,6 @@
-# Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers
+# Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
 
-A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. The WordPress alternative that respects both developers and readers.
+A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true WordPress alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure – even your email.
 
 [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
 
@@ -69,7 +69,7 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 ### Prerequisites
 - Cloudflare account (free tier works)
-- Node.js 16+
+- Node.js 20+
 - Wrangler CLI (`npm install -g wrangler`)
 
 ### Deploy in 5 minutes
@@ -111,7 +111,7 @@ wrangler d1 execute blog_content --remote --file=schema.sql
 bash
 wrangler kv:namespace create "RATE_LIMIT"
 
-Configure your domain in wrangler.toml:
+Configure your domain and bindings in wrangler.toml:
 ```
 toml
 [[routes]]
@@ -165,6 +165,7 @@ deadlight/
 │       │   ├── admin.js     # Admin routes (CRUD + users)
 │       │   ├── auth.js      # Login/logout with CSRF
 │       │   ├── blog.js      # Public blog routes
+│       │   ├── nibox.js      # Inbox routing
 │       │   └── styles.js    # CSS delivery
 │       ├── templates/       # HTML templates
 │       └── utils/           # App-specific utilities
@@ -206,10 +207,11 @@ deadlight/
 - Parameterized queries (no SQL injection)
 - HTML escaping in outputs
 - Markdown sanitization
--Secure cookie flags
+- Secure cookie flags
 
 
 # Configuration
+
 Edit `src/config.js` to customize:
 
 - Site title and description
@@ -242,11 +244,22 @@ Edit theme variables in src/routes/styles.js. The CSS uses variables for easy cu
 - Validation rules: Edit lib.deadlight/core/src/security/validation.js
 - Security headers: Edit lib.deadlight/core/src/security/headers.js
 
-## Ecosystem Roadmap
-# Coming Soon
--📧 comm.deadlight - Integrated email client/server
--🔀 proxy.deadlight - Privacy proxy service
--🔍 search.deadlight - Full-text search service
+## Ecosystem Roadmap (v4 and Beyond)
+
+Deadlight is not just a blog; it's a vision for a self-sovereign digital ecosystem. The following modules are under active development or consideration to expand its capabilities while maintaining its core principles of modularity, privacy, and user control.
+
+# Coming Soon (Actively in Development)
+-📧 comm.deadlight - Integrated Email Client/Server:
+Our most ambitious upcoming feature, comm.deadlight aims to provide a robust email solution for your domain (e.g., you@deadlight.boo) without relying on major third-party email providers. This enables true self-ownership of your communications.
+* Hybrid Approach: Leverages Cloudflare Workers for the email application logic, processing, and storage (via KV/Durable Objects).
+* SMTP Handling: Integrates with a lightweight, dedicated SMTP endpoint (potentially your custom Python solution or proxy.deadlight) responsible for sending and receiving raw email protocols.
+* Scalability & Reliability: For production-level reliability and prompt delivery, a small, inexpensive Virtual Private Server (VPS) is recommended for the SMTP endpoint, providing a static public IP and 24/7 availability.
+* Free-Tier Exploration: We are actively exploring solutions that minimize cost, including methods for personal, low-volume use that might run on local hardware (like a Raspberry Pi) and leverage SMTP retry mechanisms, with clear documentation about the trade-offs in reliability. This allows for adoption without immediate financial commitment, while offering a clear upgrade path for critical use.
+-🔀 proxy.deadlight - Privacy Proxy Service:
+A flexible, lightweight network proxy (written in C, with potential for other language implementations) designed to facilitate secure and private communication.
+* Email Bridge: Can function as a crucial component of comm.deadlight, bridging raw email protocols (SMTP/IMAP) to HTTP endpoints accessible by Cloudflare Workers.
+* Protocol Flexibility: Enables Cloudflare Workers to interact with services that typically require raw TCP/UDP connections.
+* Portable Executable: Designed to be highly portable, allowing it to run on diverse hardware (from a VPS to a Raspberry Pi or even your local machine), offering deployment flexibility for specific use cases (e.g., local synchronization or less critical email handling).
 
 # Future Considerations
 -📊 Analytics service (privacy-first)

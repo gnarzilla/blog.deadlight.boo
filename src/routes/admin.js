@@ -646,5 +646,121 @@ export const adminRoutes = {
         });
       }
     }
+  },
+  '/admin/pending-replies': {
+    GET: async (request, env) => {
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      const apiKey = request.headers.get('X-API-Key');
+      const expectedKey = env.X_API_KEY || 'YOUR_API_KEY';
+      
+      // Debug logging (remove in production)
+      console.log('Debugging API Key - Received:', apiKey ? apiKey.substring(0, 5) + '...' : 'none');
+      console.log('Debugging API Key - Expected:', expectedKey ? expectedKey.substring(0, 5) + '...' : 'none');
+      
+      // Fix authentication logic: Allow access if user is admin OR API key matches
+      const isAuthenticated = (user && user.role === 'admin') || (apiKey === expectedKey);
+      if (!isAuthenticated) {
+        logger.warn('Unauthorized pending-replies attempt', { 
+          ip: request.headers.get('CF-Connecting-IP') || 'unknown',
+          keyProvided: !!apiKey,
+          userPresent: !!user,
+          userRole: user ? user.role : 'none'
+        });
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 403
+        });
+      }
+      
+      try {
+        const query = 'SELECT * FROM posts WHERE is_reply_draft = 1 AND email_metadata LIKE \'%sent":false%\'';
+        const repliesResult = await env.DB.prepare(query).all();
+        const pendingReplies = repliesResult.results.map(reply => {
+          const metadata = reply.email_metadata ? JSON.parse(reply.email_metadata) : {};
+          return {
+            id: reply.id,
+            to: metadata.to || 'Unknown',
+            from: metadata.from || 'deadlight.boo@gmail.com',
+            subject: reply.title,
+            body: reply.content,
+            original_id: metadata.original_id || null,
+            queued_at: metadata.date_queued || reply.created_at
+          };
+        });
+        
+        return new Response(JSON.stringify({ success: true, replies: pendingReplies }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        logger.error('Error fetching pending replies', { error: error.message, userId: user?.id || 'API' });
+        return new Response(JSON.stringify({ error: 'Failed to fetch pending replies', details: error.message }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 500
+        });
+      }
+    },
+    POST: async (request, env) => {
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      const apiKey = request.headers.get('X-API-Key');
+      const expectedKey = env.X_API_KEY || 'YOUR_API_KEY';
+      
+      // Fix authentication logic: Allow access if user is admin OR API key matches
+      const isAuthenticated = (user && user.role === 'admin') || (apiKey === expectedKey);
+      if (!isAuthenticated) {
+        logger.warn('Unauthorized mark-sent attempt', { 
+          ip: request.headers.get('CF-Connecting-IP') || 'unknown',
+          keyProvided: !!apiKey,
+          userPresent: !!user,
+          userRole: user ? user.role : 'none'
+        });
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 403
+        });
+      }
+      
+      try {
+        const payload = await request.json();
+        const replyId = payload.id;
+        if (!replyId) {
+          return new Response(JSON.stringify({ error: 'Reply ID required' }), {
+            headers: { 'Content-Type': 'application/json' },
+            status: 400
+          });
+        }
+        
+        const query = 'SELECT * FROM posts WHERE id = ? AND is_reply_draft = 1';
+        const replyResult = await env.DB.prepare(query).bind(replyId).first();
+        if (!replyResult) {
+          return new Response(JSON.stringify({ error: 'Reply not found' }), {
+            headers: { 'Content-Type': 'application/json' },
+            status: 404
+          });
+        }
+        
+        const metadata = replyResult.email_metadata ? JSON.parse(replyResult.email_metadata) : {};
+        metadata.sent = true;
+        metadata.date_sent = new Date().toISOString();
+        const updateQuery = 'UPDATE posts SET email_metadata = ?, updated_at = ? WHERE id = ?';
+        await env.DB.prepare(updateQuery).bind(
+          JSON.stringify(metadata),
+          new Date().toISOString(),
+          replyId
+        ).run();
+        
+        logger.info(`Marked reply ${replyId} as sent`, { userId: user?.id || 'API' });
+        return new Response(JSON.stringify({ success: true, id: replyId }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        logger.error('Error marking reply as sent', { error: error.message, userId: user?.id || 'API' });
+        return new Response(JSON.stringify({ error: 'Failed to mark reply as sent', details: error.message }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 500
+        });
+      }
+    }
   }
 };
