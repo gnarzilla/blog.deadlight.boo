@@ -465,5 +465,186 @@ export const adminRoutes = {
         return new Response('Failed to delete user', { status: 500 });
       }
     }
+  },
+  '/admin/inject-emails': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user || user.role !== 'admin') {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      const content = `
+        <h1>Inject Emails</h1>
+        <p>This will inject mock email data into the posts table for testing purposes.</p>
+        <form action="/admin/inject-emails" method="POST">
+          <button type="submit">Inject Mock Emails</button>
+        </form>
+        <div class="admin-actions">
+          <a href="/admin" class="button secondary">Back to Dashboard</a>
+          <a href="/inbox" class="button">View Inbox</a>
+        </div>
+      `;
+
+      return new Response(renderTemplate('Inject Emails', content, user), {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    },
+    POST: async (request, env) => {
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      if (!user || user.role !== 'admin') {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      try {
+        // Mock email data to inject (replace with real data source later if needed)
+        const mockEmails = [
+          {
+            subject: "Your account is live - join millions of businesses on Google",
+            body: "thatch, welcome to Google\n\nNow you can start growing your business.\n\nComplete your profile  \n<https://business.google.com/create?hl=en&gmbsrc=US-en-et-em-z-gmb-z-l~wlcemnewv%7Ccreate&mcsubid=ww-ww-xs-mc-simedm-1-simometest!o3&trk=https%3A%2F%2Fc.gle%2FANiao5o-_gstjXfaH2vfT_kVzzSgMwbu_1X48UquUw0U6Zg1mL4h9fJvctaO5ZJBjaNHYTlIkvKGEO_YHYziseGVtWfCGQ5fZyLL60gkNNhfvIy9IkLOkgX0mej2jq0l6fkuRfcsmF7ZAlQ>\n\nCongratulations – your account is live and ready for action. You now have access to a range of tools that can help your business reach more people.\n\n...",
+            from: "Google Community Team <googlecommunityteam-noreply@google.com>",
+            to: "deadlight.boo@gmail.com",
+            date: "Sat, 02 Aug 2025 07:21:59 -0700",
+            message_id: "a1d91498095de4b1b3de613c0fe9cd1471d1f0d1-20166281-111702100@google.com"
+          },
+          {
+            subject: "Test Email for Deadlight Comm",
+            body: "Hello,\n\nThis is a test email to check if the inbox rendering works correctly in Deadlight Comm.\n\nBest regards,\nTest User",
+            from: "Test User <test@example.com>",
+            to: "deadlight.boo@gmail.com",
+            date: "Sun, 03 Aug 2025 10:00:00 -0700",
+            message_id: "test-1234567890@example.com"
+          }
+        ];
+
+        let insertedCount = 0;
+        for (const email of mockEmails) {
+          try {
+            const metadata = JSON.stringify({
+              from: email.from,
+              to: email.to,
+              message_id: email.message_id,
+              date: email.date
+            });
+            // Simplify duplicate check by extracting a short unique part of message_id
+            // Use first 20 chars or so to avoid complex LIKE patterns
+            const shortMsgId = email.message_id.length > 20 ? email.message_id.substring(0, 20) : email.message_id;
+            const checkQuery = 'SELECT id FROM posts WHERE is_email = 1 AND email_metadata LIKE ? LIMIT 1';
+            const existing = await env.DB.prepare(checkQuery).bind(`%${shortMsgId}%`).first();
+            if (!existing) {
+              const insertQuery = `
+                INSERT INTO posts (title, content, slug, author_id, created_at, updated_at, published, is_email, email_metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+              `;
+              await env.DB.prepare(insertQuery).bind(
+                email.subject,
+                email.body,
+                `email-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, // Unique slug
+                user.id, // Use logged-in user's ID
+                email.date || new Date().toISOString(),
+                new Date().toISOString(),
+                0, // Not published (private)
+                1, // is_email flag
+                metadata
+              ).run();
+              insertedCount++;
+              logger.info(`Injected email: ${email.subject}`, { userId: user.id });
+            } else {
+              logger.info(`Skipped existing email: ${email.subject}`, { userId: user.id });
+            }
+          } catch (err) {
+            logger.error(`Error injecting email ${email.subject}:`, { error: err.message, userId: user.id });
+          }
+        }
+
+        const content = `
+          <h2>Injection Complete</h2>
+          <p>Inserted ${insertedCount} email(s) into the database.</p>
+          <div class="admin-actions">
+            <a href="/inbox" class="button">View Inbox</a>
+            <a href="/admin" class="button secondary">Back to Dashboard</a>
+          </div>
+        `;
+        return new Response(renderTemplate('Injection Complete', content, user), {
+          headers: { 'Content-Type': 'text/html' }
+        });
+      } catch (error) {
+        logger.error('Error injecting emails', { error: error.message, userId: user.id });
+        return new Response(renderTemplate('Error', `<p>Failed to inject emails: ${error.message}</p>`, user), {
+          headers: { 'Content-Type': 'text/html' },
+          status: 500
+        });
+      }
+    }
+  },
+  '/admin/fetch-emails': {
+    POST: async (request, env) => {
+      const logger = new Logger({ context: 'admin' });
+      const user = await checkAuth(request, env);
+      if (!user || user.role !== 'admin') {
+        // Also allow API key authentication for automation
+        const apiKey = request.headers.get('X-API-Key');
+        const expectedKey = env.API_KEY || 'YOUR_API_KEY'; // Set in wrangler.toml or as secret
+        if (apiKey !== expectedKey) {
+          logger.warn('Unauthorized fetch-emails attempt', { ip: request.headers.get('CF-Connecting-IP') || 'unknown' });
+          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            headers: { 'Content-Type': 'application/json' },
+            status: 403
+          });
+        }
+      }
+
+      try {
+        const payload = await request.json();
+        let insertedCount = 0;
+        if (Array.isArray(payload.emails)) {
+          for (const email of payload.emails) {
+            try {
+              const metadata = JSON.stringify({
+                from: email.from || 'Unknown Sender',
+                to: email.to || 'Unknown Recipient',
+                message_id: email.message_id || `msg-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+                date: email.date || new Date().toISOString()
+              });
+              // Check for duplicates by message_id (simplified)
+              const checkQuery = 'SELECT id FROM posts WHERE is_email = 1 AND title = ? LIMIT 1';
+              const existing = await env.DB.prepare(checkQuery).bind(email.subject || 'Untitled Email').first();
+              if (!existing) {
+                const insertQuery = `
+                  INSERT INTO posts (title, content, slug, author_id, created_at, updated_at, published, is_email, email_metadata)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+                await env.DB.prepare(insertQuery).bind(
+                  email.subject || 'Untitled Email',
+                  email.body || 'No content',
+                  `email-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, // Unique slug
+                  user?.id || 2, // Use logged-in user's ID or default admin ID
+                  email.date || new Date().toISOString(),
+                  new Date().toISOString(),
+                  0, // Not published (private)
+                  1, // is_email flag
+                  metadata
+                ).run();
+                insertedCount++;
+                logger.info(`Fetched and inserted email: ${email.subject || 'Untitled Email'}`, { userId: user?.id || 'API' });
+              } else {
+                logger.info(`Skipped existing email: ${email.subject || 'Untitled Email'}`, { userId: user?.id || 'API' });
+              }
+            } catch (err) {
+              logger.error(`Error inserting email ${email.subject || 'Untitled Email'}:`, { error: err.message, userId: user?.id || 'API' });
+            }
+          }
+        }
+        return new Response(JSON.stringify({ success: true, inserted: insertedCount }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        logger.error('Error fetching emails via API', { error: error.message, userId: user?.id || 'API' });
+        return new Response(JSON.stringify({ error: 'Failed to fetch emails', details: error.message }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 500
+        });
+      }
+    }
   }
 };

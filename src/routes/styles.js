@@ -1027,6 +1027,79 @@ const baseStyles = `
   .button.primary:hover {
     background-color: var(--link-hover);
   }
+
+    /* Reply Form */
+  .reply-form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+
+  .reply-form {
+    background: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+  }
+
+  .reply-form .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .reply-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .reply-form .form-input, .reply-form .form-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1em;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    transition: var(--transition);
+  }
+
+  .reply-form .form-textarea {
+    min-height: 250px;
+    resize: vertical;
+  }
+
+  .reply-form .readonly {
+    background-color: var(--bg-primary);
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
+  .reply-form .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .reply-form .send-button {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+  }
+
+  .reply-form .send-button:hover {
+    background-color: var(--button-primary-hover);
+  }
+
+  .reply-form .cancel-button {
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+  }
+
+  .reply-form .cancel-button:hover {
+    background-color: var(--button-secondary-hover);
+  }
 `;
 
 // Dark theme variables

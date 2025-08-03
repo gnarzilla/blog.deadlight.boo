@@ -5,6 +5,7 @@ import { staticRoutes } from './routes/static.js';
 import { authRoutes } from './routes/auth.js';
 import { adminRoutes } from './routes/admin.js';
 import { blogRoutes } from './routes/blog.js';
+import { inboxRoutes } from './routes/inbox.js';
 import { errorMiddleware } from './middleware/error.js';
 import { loggingMiddleware } from './middleware/logging.js';
 import { rateLimitMiddleware, securityHeadersMiddleware } from '../../../lib.deadlight/core/src/security/middleware.js';
@@ -24,7 +25,8 @@ console.log('Registering routes...');
   { name: 'style', routes: styleRoutes },
   { name: 'static', routes: staticRoutes },
   { name: 'auth', routes: authRoutes },
-  { name: 'admin', routes: adminRoutes }
+  { name: 'admin', routes: adminRoutes },
+  { name: 'inbox', routes: inboxRoutes }
 ].forEach(({ name, routes }) => {
   console.log(`Registering ${name} routes:`, Object.keys(routes));
   Object.entries(routes).forEach(([path, handlers]) => {
