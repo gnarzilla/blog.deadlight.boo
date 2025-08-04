@@ -2,6 +2,7 @@
 import { renderTemplate } from '../base.js';
 import { renderMarkdown } from '../../utils/markdown.js';
 import { PostList, Pagination } from '../../../../../lib.deadlight/core/src/components/posts/index.js';
+import { defaultProcessor } from '../../../../../lib.deadlight/core/src/markdown/processor.js';
 
 const postList = new PostList({
   showActions: true,
@@ -17,34 +18,89 @@ function createExcerpt(content, maxLength = 300) {
   // Check for manual excerpt marker
   const moreIndex = content.indexOf('<!--more-->');
   if (moreIndex !== -1) {
-    // Return content BEFORE the marker
-    return content.substring(0, moreIndex).trim();
+    // Process the excerpt portion through markdown, then return
+    const excerptContent = content.substring(0, moreIndex).trim();
+    return defaultProcessor.render(excerptContent);
   }
   
-  // Otherwise use automatic excerpt
+  // For automatic excerpts, we need to be more careful
+  // First, let's extract the excerpt text, then process it
   const plainText = content
     .replace(/#{1,6}\s/g, '') // Remove headers
     .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
     .replace(/\*(.+?)\*/g, '$1') // Remove italic
-    .replace(/$$(.+?)$$$.+?$/g, '$1') // Remove links
+    .replace(/$$([^$$]+)\]$[^)]+$/g, '$1') // Remove links (fixed regex)
     .replace(/```[\s\S]*?```/g, '') // Remove code blocks
     .replace(/`(.+?)`/g, '$1') // Remove inline code
     .replace(/\n{2,}/g, ' ') // Replace multiple newlines with space
     .replace(/\n/g, ' ') // Replace single newlines with space
     .trim();
   
+  let excerptText;
   if (plainText.length <= maxLength) {
-    return plainText;
+    excerptText = plainText;
+  } else {
+    // Cut at last complete word
+    const excerpt = plainText.substring(0, maxLength);
+    const lastSpace = excerpt.lastIndexOf(' ');
+    excerptText = excerpt.substring(0, lastSpace) + '...';
   }
   
-  // Cut at last complete word
-  const excerpt = plainText.substring(0, maxLength);
-  const lastSpace = excerpt.lastIndexOf(' ');
-  return excerpt.substring(0, lastSpace) + '...';
+  // Now process the excerpt through markdown (this handles things like lists, emphasis, etc.)
+  return defaultProcessor.render(excerptText);
+}
+
+// Alternative approach - create a proper markdown excerpt function
+function createMarkdownExcerpt(content, maxLength = 300) {
+  // Check for manual excerpt marker
+  const moreIndex = content.indexOf('<!--more-->');
+  if (moreIndex !== -1) {
+    const excerptContent = content.substring(0, moreIndex).trim();
+    return defaultProcessor.render(excerptContent);
+  }
+  
+  // For automatic excerpts, we need to render first, then truncate
+  const fullHtml = defaultProcessor.render(content);
+  
+  // Convert HTML back to text for length checking
+  const textContent = fullHtml
+    .replace(/<[^>]*>/g, '') // Strip HTML tags
+    .replace(/&[^;]+;/g, ' ') // Replace HTML entities with space
+    .trim();
+  
+  if (textContent.length <= maxLength) {
+    return fullHtml;
+  }
+  
+  // If too long, we need to truncate the markdown before processing
+  // This is trickier, so let's find a good breaking point in the original content
+  let truncateAt = maxLength;
+  
+  // Try to find a paragraph break near our target length
+  const paragraphs = content.split('\n\n');
+  let currentLength = 0;
+  let excerptParagraphs = [];
+  
+  for (const paragraph of paragraphs) {
+    if (currentLength + paragraph.length > maxLength && excerptParagraphs.length > 0) {
+      break;
+    }
+    excerptParagraphs.push(paragraph);
+    currentLength += paragraph.length;
+  }
+  
+  const excerptContent = excerptParagraphs.join('\n\n') + '...';
+  return defaultProcessor.render(excerptContent);
 }
 
 export function renderPostList(posts = [], user = null, paginationData = null) {
-  const postsHtml = postList.render(posts, { user });
+  // Process posts to add rendered excerpts
+  const postsWithExcerpts = posts.map(post => ({
+    ...post,
+    excerpt: createMarkdownExcerpt(post.content || '', 300)
+  }));
+  
+  const postsHtml = postList.render(postsWithExcerpts, { user });
   const paginationHtml = pagination.render(paginationData);
 
   return renderTemplate(
