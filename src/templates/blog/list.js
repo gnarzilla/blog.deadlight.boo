@@ -1,6 +1,6 @@
 // src/templates/blog/list.js 
 import { renderTemplate } from '../base.js';
-import { renderMarkdown } from '../../utils/markdown.js';
+import { renderMarkdown } from '../../../../../lib.deadlight/core/src/markdown/processor.js';
 import { PostList, Pagination } from '../../../../../lib.deadlight/core/src/components/posts/index.js';
 import { defaultProcessor } from '../../../../../lib.deadlight/core/src/markdown/processor.js';
 
@@ -93,7 +93,7 @@ function createMarkdownExcerpt(content, maxLength = 300) {
   return defaultProcessor.render(excerptContent);
 }
 
-export function renderPostList(posts = [], user = null, paginationData = null) {
+export function renderPostList(posts = [], user = null, paginationData = null, config = null) {
   // Process posts to add rendered excerpts
   const postsWithExcerpts = posts.map(post => ({
     ...post,
@@ -109,7 +109,8 @@ export function renderPostList(posts = [], user = null, paginationData = null) {
       ${postsHtml}
       ${paginationHtml}
     </div>`,
-    user
+    user,
+    config
   );
 }
 

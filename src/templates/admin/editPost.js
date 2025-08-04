@@ -1,12 +1,13 @@
 // src/templates/admin/editPost.js
 import { renderTemplate } from '../base.js';
 
-export function renderEditPostForm(post, user) {
-  return renderTemplate('Edit Post', `
+export function renderEditPostForm(post, user, config = null) {
+  const content = `
     <div class="admin-form-container">
       <h1>Edit Post</h1>
       <div class="post-meta">
         <p>Created: ${new Date(post.created_at).toLocaleString()}</p>
+        <p>Last Updated: ${new Date(post.updated_at).toLocaleString()}</p>
         <p>URL: <a href="/post/${post.slug}" target="_blank">/post/${post.slug}</a></p>
       </div>
       
@@ -14,6 +15,19 @@ export function renderEditPostForm(post, user) {
         <div class="form-group">
           <label for="title">Title</label>
           <input type="text" id="title" name="title" value="${post.title}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="slug">Slug (URL path)</label>
+          <input type="text" id="slug" name="slug" value="${post.slug}" 
+                 pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens allowed">
+          <small>Leave blank to auto-generate from title</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="excerpt">Excerpt (optional)</label>
+          <textarea id="excerpt" name="excerpt" rows="3" 
+                    placeholder="Brief description for previews...">${post.excerpt || ''}</textarea>
         </div>
         
         <div class="form-group">
@@ -35,5 +49,7 @@ export function renderEditPostForm(post, user) {
         </div>
       </form>
     </div>
-  `, user);
+  `;
+
+  return renderTemplate('Edit Post', content, user, config);
 }

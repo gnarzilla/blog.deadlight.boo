@@ -2,58 +2,72 @@
 import { renderPostList } from '../templates/blog/list.js';
 import { renderSinglePost } from '../templates/blog/single.js';
 import { checkAuth } from '../utils/auth.js';
-import { siteConfig } from '../config.js';
+import { configService } from '../services/config.js'
 
 export const blogRoutes = {
   '/': {
     GET: async (request, env) => {
-      // Check authentication
-      const user = await checkAuth(request, env);
-      console.log('Auth check result:', { isAuthenticated: !!user, user });
-      
-      // Get page number from query params
-      const url = new URL(request.url);
-      const page = parseInt(url.searchParams.get('page') || '1');
-      const offset = (page - 1) * siteConfig.postsPerPage;
-      
-      // Get total count for pagination (only published posts)
-      const countResult = await env.DB.prepare(
-        'SELECT COUNT(*) as total FROM posts WHERE published = 1'
-      ).first();
-      const totalPosts = countResult.total;
-      const totalPages = Math.ceil(totalPosts / siteConfig.postsPerPage);
-      
-      // Get posts for current page
-      const result = await env.DB.prepare(`
-        SELECT 
-          posts.*, 
-          users.username as author_username 
-        FROM posts 
-        JOIN users ON posts.author_id = users.id 
-        WHERE posts.published = 1
-        ORDER BY posts.created_at DESC
-        LIMIT ? OFFSET ?
-      `).bind(siteConfig.postsPerPage, offset).all();  
+      try {
+        // Check authentication
+        const user = await checkAuth(request, env);
+        console.log('Auth check result:', { isAuthenticated: !!user, user });
+        
+        // Get dynamic config with error handling
+        const config = await configService.getConfig(env.DB);
+        console.log('Config loaded:', config); // Debug log
+        
+        // Ensure postsPerPage is a valid number
+        const postsPerPage = parseInt(config.postsPerPage) || 10;
+        
+        // Get page number from query params
+        const url = new URL(request.url);
+        const page = parseInt(url.searchParams.get('page') || '1');
+        const offset = (page - 1) * postsPerPage;
+        
+        // Get total count for pagination (only published posts)
+        const countResult = await env.DB.prepare(
+          'SELECT COUNT(*) as total FROM posts WHERE published = 1'
+        ).first();
+        const totalPosts = countResult.total;
+        const totalPages = Math.ceil(totalPosts / postsPerPage);
+        
+        // Get posts for current page
+        const result = await env.DB.prepare(`
+          SELECT 
+            posts.*, 
+            users.username as author_username 
+          FROM posts 
+          JOIN users ON posts.author_id = users.id 
+          WHERE posts.published = 1
+          ORDER BY posts.created_at DESC
+          LIMIT ? OFFSET ?
+        `).bind(postsPerPage, offset).all();
 
-      const paginationData = {
-        currentPage: page,
-        totalPages: totalPages,
-        totalPosts: totalPosts,
-        postsPerPage: siteConfig.postsPerPage,  
-        hasPrevious: page > 1,
-        hasNext: page < totalPages,
-        previousPage: page - 1,
-        nextPage: page + 1
-      };
+        const paginationData = {
+          currentPage: page,
+          totalPages: totalPages,
+          totalPosts: totalPosts,
+          postsPerPage: postsPerPage,
+          hasPrevious: page > 1,
+          hasNext: page < totalPages,
+          previousPage: page - 1,
+          nextPage: page + 1
+        };
 
-      return new Response(
-        renderPostList(result.results, user, paginationData), 
-        {
-          headers: { 'Content-Type': 'text/html' }
-        }
-      );
+        return new Response(
+          renderPostList(result.results, user, paginationData, config), 
+          {
+            headers: { 'Content-Type': 'text/html' }
+          }
+        );
+      } catch (error) {
+        console.error('Blog route error:', error);
+        return new Response('Internal server error', { status: 500 });
+      }
     }
   },
+  
+  // ... your existing '/post/:id' route
   
   '/post/:id': {
     GET: async (request, env) => {

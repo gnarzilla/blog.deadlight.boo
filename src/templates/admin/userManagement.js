@@ -1,7 +1,7 @@
 // src/templates/admin/userManagement.js
 import { renderTemplate } from '../base.js';
 
-export function renderUserManagement(users, currentUser) {
+export function renderUserManagement(users, currentUser, config = null) {
   const content = `
     <div class="user-management">
       <div class="page-header">
@@ -54,5 +54,5 @@ export function renderUserManagement(users, currentUser) {
     </div>
   `;
 
-  return renderTemplate('User Management', content, currentUser);
+  return renderTemplate('User Management', content, currentUser, config);
 }

@@ -1,6 +1,9 @@
+
+// src/routes/inbox.js
 import { renderTemplate } from '../templates/base.js';
 import { MarkdownProcessor } from '../../../../lib.deadlight/core/src/markdown/processor.js';
 import { checkAuth } from '../utils/auth.js';
+import { configService } from '../services/config.js'; // Add this import
 
 export const inboxRoutes = {
   '/inbox': {
@@ -9,8 +12,12 @@ export const inboxRoutes = {
       if (!user) {
         return Response.redirect(`${new URL(request.url).origin}/login`);
       }
+      
+      // Get dynamic config
+      const config = await configService.getConfig(env.DB);
+      
       const page = parseInt(request.query?.page || '1');
-      const limit = 10; // Match posts_per_page or make configurable
+      const limit = config.postsPerPage || 10; // Use dynamic posts per page
       
       // Fetch emails (posts with is_email = 1)
       const offset = (page - 1) * limit;
@@ -77,7 +84,8 @@ export const inboxRoutes = {
             ${emailList}
             ${paginationHtml}
           </div>`,
-          user
+          user,
+          config // Pass config here
         ),
         { headers: { 'Content-Type': 'text/html' } }
       );
@@ -89,13 +97,17 @@ export const inboxRoutes = {
       if (!user) {
         return Response.redirect(`${new URL(request.url).origin}/login`);
       }
+      
+      // Get dynamic config
+      const config = await configService.getConfig(env.DB);
+      
       const emailId = request.params.id;
       const query = 'SELECT * FROM posts WHERE id = ? AND is_email = 1';
       const emailResult = await env.DB.prepare(query).bind(emailId).first();
       
       if (!emailResult) {
         return new Response(
-          renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user),
+          renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user, config),
           { headers: { 'Content-Type': 'text/html' }, status: 404 }
         );
       }
@@ -146,7 +158,7 @@ export const inboxRoutes = {
       `;
       
       return new Response(
-        renderTemplate(email.title, `<div class="container">${content}</div>`, user),
+        renderTemplate(email.title, `<div class="container">${content}</div>`, user, config),
         { headers: { 'Content-Type': 'text/html' } }
       );
     }
@@ -155,17 +167,21 @@ export const inboxRoutes = {
     GET: async (request, env) => {
         const user = await checkAuth(request, env);
         if (!user) {
-        return Response.redirect(`${new URL(request.url).origin}/login`);
+          return Response.redirect(`${new URL(request.url).origin}/login`);
         }
+        
+        // Get dynamic config
+        const config = await configService.getConfig(env.DB);
+        
         const emailId = request.params.id;
         const query = 'SELECT * FROM posts WHERE id = ? AND is_email = 1';
         const emailResult = await env.DB.prepare(query).bind(emailId).first();
         
         if (!emailResult) {
-        return new Response(
-            renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user),
+          return new Response(
+            renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user, config),
             { headers: { 'Content-Type': 'text/html' }, status: 404 }
-        );
+          );
         }
         
         const metadata = emailResult.email_metadata ? JSON.parse(emailResult.email_metadata) : {};
@@ -200,24 +216,28 @@ export const inboxRoutes = {
         `;
         
         return new Response(
-        renderTemplate('Compose Reply', `<div class="container">${content}</div>`, user),
-        { headers: { 'Content-Type': 'text/html' } }
+          renderTemplate('Compose Reply', `<div class="container">${content}</div>`, user, config),
+          { headers: { 'Content-Type': 'text/html' } }
         );
     },
     POST: async (request, env) => {
         const user = await checkAuth(request, env);
         if (!user) {
-        return Response.redirect(`${new URL(request.url).origin}/login`);
+          return Response.redirect(`${new URL(request.url).origin}/login`);
         }
+        
+        // Get dynamic config
+        const config = await configService.getConfig(env.DB);
+        
         const emailId = request.params.id;
         const query = 'SELECT * FROM posts WHERE id = ? AND is_email = 1';
         const emailResult = await env.DB.prepare(query).bind(emailId).first();
         
         if (!emailResult) {
-        return new Response(
-            renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user),
+          return new Response(
+            renderTemplate('Email Not Found', '<p>Email not found or access denied.</p>', user, config),
             { headers: { 'Content-Type': 'text/html' }, status: 404 }
-        );
+          );
         }
         
         const formData = await request.formData();
@@ -226,26 +246,26 @@ export const inboxRoutes = {
         const body = formData.get('body') || '';
         
         if (!to || !body) {
-        return new Response(
-            renderTemplate('Invalid Input', '<p>Recipient and reply body are required.</p><a href="/inbox/reply/' + emailId + '" class="button">Try Again</a>', user),
+          return new Response(
+            renderTemplate('Invalid Input', '<p>Recipient and reply body are required.</p><a href="/inbox/reply/' + emailId + '" class="button">Try Again</a>', user, config),
             { headers: { 'Content-Type': 'text/html' }, status: 400 }
-        );
+          );
         }
         
         try {
-        // Store the reply as a draft in the posts table with is_reply_draft = 1
-        const replyMetadata = JSON.stringify({
+          // Store the reply as a draft in the posts table with is_reply_draft = 1
+          const replyMetadata = JSON.stringify({
             to: to,
             from: 'deadlight.boo@gmail.com', // Or user's email if available
             original_id: emailId,
             date_queued: new Date().toISOString(),
             sent: false
-        });
-        const insertQuery = `
+          });
+          const insertQuery = `
             INSERT INTO posts (title, content, slug, author_id, created_at, updated_at, published, is_email, email_metadata, is_reply_draft)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        await env.DB.prepare(insertQuery).bind(
+          `;
+          await env.DB.prepare(insertQuery).bind(
             subject,
             body,
             `reply-draft-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`, // Unique slug
@@ -256,23 +276,23 @@ export const inboxRoutes = {
             0, // Not an incoming email
             replyMetadata,
             1  // Flag as reply draft
-        ).run();
-        
-        const successMessage = `<p>Reply queued for sending to ${escapeHtml(to)}! It will be sent shortly.</p><a href="/email/${emailId}" class="button">Back to Email</a><a href="/inbox" class="button secondary">Back to Inbox</a>`;
-        return new Response(
-            renderTemplate('Reply Queued', successMessage, user),
+          ).run();
+          
+          const successMessage = `<p>Reply queued for sending to ${escapeHtml(to)}! It will be sent shortly.</p><a href="/email/${emailId}" class="button">Back to Email</a><a href="/inbox" class="button secondary">Back to Inbox</a>`;
+          return new Response(
+            renderTemplate('Reply Queued', successMessage, user, config),
             { headers: { 'Content-Type': 'text/html' } }
-        );
+          );
         } catch (error) {
-        console.error(`Failed to queue reply: ${error.message}`);
-        const errorMessage = `<p>Failed to queue reply: ${escapeHtml(error.message)}</p><a href="/inbox/reply/${emailId}" class="button">Try Again</a>`;
-        return new Response(
-            renderTemplate('Queue Failed', errorMessage, user),
+          console.error(`Failed to queue reply: ${error.message}`);
+          const errorMessage = `<p>Failed to queue reply: ${escapeHtml(error.message)}</p><a href="/inbox/reply/${emailId}" class="button">Try Again</a>`;
+          return new Response(
+            renderTemplate('Queue Failed', errorMessage, user, config),
             { headers: { 'Content-Type': 'text/html' }, status: 500 }
-        );
+          );
         }
     }
-    }
+  }
 };
 
 function renderPagination(pagination, basePath = '/inbox') {

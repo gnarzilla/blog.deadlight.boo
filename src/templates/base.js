@@ -1,8 +1,9 @@
 // src/templates/base.js
 import { siteConfig } from '../config.js';
 
-export function renderTemplate(title, bodyContent, user = null) {
-  const pageTitle = title === 'home' ? siteConfig.title : `${title} | ${siteConfig.title}`;
+export function renderTemplate(title, bodyContent, user = null, config = null) {
+  const siteTitle = config?.title || 'deadlight';
+  const pageTitle = title === 'home' ? siteTitle : `${title} | ${siteTitle}`;
   
   const authLinks = user 
     ? `
@@ -28,7 +29,7 @@ export function renderTemplate(title, bodyContent, user = null) {
     </head>
     <body>
       <header>
-        <h1><a href="/">${siteConfig.title}</a></h1>
+        <h1><a href="/">${siteTitle}</a></h1>
         <nav>
           ${authLinks}
           <div class="theme-toggle-container">

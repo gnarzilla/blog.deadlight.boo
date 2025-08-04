@@ -1,26 +1,41 @@
 # Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
 
-A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true WordPress alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure – even your email.
-
-[Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
+A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true WordPress alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure – even your email. [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
 
 🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
 
-<img width="2222" height="1239" alt="image" src="https://github.com/user-attachments/assets/05862ed5-d3cc-4c7f-9aff-8d01ed093237" />
+✔️ Clone the repo
+✔️ Create D1 database
+✔️ Set up KV namespace
+✔️ Deploy via Wrangler
 
-<img width="2224" height="1241" alt="image" src="https://github.com/user-attachments/assets/f6f0b745-387a-4e1e-b4a5-0df3d8987c63" />
+<img width="1057" height="2102" alt="image" src="https://github.com/user-attachments/assets/36766575-eabd-4284-838a-1a87ba2ec096" />
 
-## Admin Dashboard
+<img width="1061" height="2102" alt="image" src="https://github.com/user-attachments/assets/1b5c106f-75fe-41bb-beff-a29910f5b230" />
 
-<img width="2224" height="1243" alt="image" src="https://github.com/user-attachments/assets/6ff729b5-2e31-4190-bc6b-96bd1a92d514" />
+## Admin Dashboard & Dynamic Settings
 
-## Dynamic Settings
+<img width="1427" height="1756" alt="image" src="https://github.com/user-attachments/assets/fbeda39b-5020-48fd-90e8-4aa7379c0034" />
 
-<img width="2223" height="1239" alt="image" src="https://github.com/user-attachments/assets/d8addda7-f93a-4dd1-b2d7-272d9328dc90" />
+<img width="1427" height="1424" alt="image" src="https://github.com/user-attachments/assets/836fa0fe-142b-4c4c-b169-ed72fe725789" />
+
+## User Management
+
+<img width="1576" height="1355" alt="image" src="https://github.com/user-attachments/assets/9fe70fb0-bbf2-4b41-accb-67db5a6b1189" />
+
 
 ## Features
 
-### What's New in v3:
+| Feature           | WordPress | Ghost | Deadlight   |
+| ----------------- | --------- | ----- | ----------- |
+| Self-host on edge | ❌         | ❌     | ✅           |
+| Email integration | ❌         | ⚠️    | ✅ (planned) |
+| Zero tracking     | ⚠️        | ✅     | ✅           |
+| Cloudflare-native | ❌         | ❌     | ✅           |
+| Modular ecosystem | ❌         | ❌     | ✅           |
+
+
+## What's New in v3:
 
 🔐 **Enterprise-Grade Security**
 - CSRF protection on all forms
@@ -53,7 +68,7 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 - Database models with error handling
 - Clean route organization
 
-### Core Features (from v2):
+## Core Features (from v2):
 
 + Zero cold starts (edge computing!)
 + Multi-user authentication with JWT
@@ -79,16 +94,14 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 git clone https://github.com/gnarzilla/blog.deadlight.boo.git
 cd blog.deadlight.boo
 npm install
-
-Clone and install:
 ```
-# Create your D1 database:
+### Create your D1 database:
+```bash
 wrangler d1 create blog_content
-bash
 ```
 
 Update wrangler.toml with your database ID:
-```
+```bash
 toml
 [[d1_databases]]
 binding = "DB"
@@ -97,23 +110,22 @@ database_id = "your-database-id-here"
 ```
 
 Initialize the database:
-```
-bash
-# Local development
-wrangler d1 execute blog_content --local --file=schema.sql
 
-# Production
-wrangler d1 execute blog_content --remote --file=schema.sql
-```
+### Local development
 
-# Create KV namespace for rate limiting
-```
-bash
-wrangler kv:namespace create "RATE_LIMIT"
+```wrangler d1 execute blog_content --local --file=schema.sql```
 
-Configure your domain and bindings in wrangler.toml:
-```
-toml
+### Production
+
+```wrangler d1 execute blog_content --remote --file=schema.sql```
+
+
+### Create KV namespace for rate limiting
+
+```wrangler kv:namespace create "RATE_LIMIT"```
+
+### Configure your domain and bindings in wrangler.toml:
+```toml
 [[routes]]
 pattern = "yourdomain.com/*"
 zone_id = "your-zone-id"
@@ -128,21 +140,21 @@ binding = "RATE_LIMIT"
 id = "your-kv-namespace-id"
 ```
 
-Set production secrets:
+## Set production secrets:
 
-```
-bash
-# Generate a secure JWT secret
+### Generate a secure JWT secret
+
+```bash
 openssl rand -base64 32
 wrangler secret put JWT_SECRET
 ```
 
-Deploy:
+### Deploy:
 ```
 bash
 wrangler deploy
 ```
-Create your admin user:
+### Create your admin user:
 ```
 bash
 # Generate secure credentials
@@ -153,8 +165,8 @@ wrangler d1 execute blog_content_new --remote --command "INSERT INTO users (user
 
 # Add to production database
 wrangler d1 execute blog_content --remote --command "INSERT INTO users (username, password, salt) VALUES ('admin', 'hash-here', 'salt-here')"
-Project Structure
 ```
+## Project Structure:
 ```
 deadlight/
 ├── blog.deadlight/          # Main blog application
@@ -165,7 +177,7 @@ deadlight/
 │       │   ├── admin.js     # Admin routes (CRUD + users)
 │       │   ├── auth.js      # Login/logout with CSRF
 │       │   ├── blog.js      # Public blog routes
-│       │   ├── nibox.js      # Inbox routing
+│       │   ├── inbox.js     # Inbox routing
 │       │   └── styles.js    # CSS delivery
 │       ├── templates/       # HTML templates
 │       └── utils/           # App-specific utilities
@@ -190,27 +202,27 @@ deadlight/
 
 ## Security Features
 
-# Authentication & Authorization
+### Authentication & Authorization
 - JWT-based sessions with secure cookies
 - Role-based access control (admin, editor, viewer)
 - Secure password hashing with bcrypt
 - Session expiration and renewal
 
-# Request Security
+### Request Security
 - CSRF protection on all state-changing operations
 - Rate limiting with configurable windows
 - Input validation and sanitization
 - XSS prevention in templates
 - Security headers (CSP, X-Frame-Options, etc.)
 
-# Data Protection
+### Data Protection
 - Parameterized queries (no SQL injection)
 - HTML escaping in outputs
 - Markdown sanitization
 - Secure cookie flags
 
 
-# Configuration
+## Configuration
 
 Edit `src/config.js` to customize:
 
@@ -220,26 +232,26 @@ Edit `src/config.js` to customize:
 - Theme defaults
 - Security settings
 
-# Common Tasks
+### Common Tasks
 Add a new user
 ```
 bash
-# Via admin interface (when logged in as admin)
+### Via admin interface (when logged in as admin)
 https://your-site/admin/users/add
 
-# Via script
+### Via script
 node scripts/create-user.js username password role
 ```
 
-# Customize styling
+### Customize styling
 Edit theme variables in src/routes/styles.js. The CSS uses variables for easy customization.
 
-# Add custom routes
+### Add custom routes
 1. Create route handler in src/routes/
 2. Register in src/index.js
 3. Add templates as needed
 
-# Adjust security settings
+### Adjust security settings
 - Rate limits: Edit lib.deadlight/core/src/security/ratelimit.js
 - Validation rules: Edit lib.deadlight/core/src/security/validation.js
 - Security headers: Edit lib.deadlight/core/src/security/headers.js
@@ -248,7 +260,7 @@ Edit theme variables in src/routes/styles.js. The CSS uses variables for easy cu
 
 Deadlight is not just a blog; it's a vision for a self-sovereign digital ecosystem. The following modules are under active development or consideration to expand its capabilities while maintaining its core principles of modularity, privacy, and user control.
 
-# Coming Soon (Actively in Development)
+## Coming Soon (Actively in Development)
 -📧 comm.deadlight - Integrated Email Client/Server:
 Our most ambitious upcoming feature, comm.deadlight aims to provide a robust email solution for your domain (e.g., you@deadlight.boo) without relying on major third-party email providers. This enables true self-ownership of your communications.
 * Hybrid Approach: Leverages Cloudflare Workers for the email application logic, processing, and storage (via KV/Durable Objects).
@@ -261,7 +273,7 @@ A flexible, lightweight network proxy (written in C, with potential for other la
 * Protocol Flexibility: Enables Cloudflare Workers to interact with services that typically require raw TCP/UDP connections.
 * Portable Executable: Designed to be highly portable, allowing it to run on diverse hardware (from a VPS to a Raspberry Pi or even your local machine), offering deployment flexibility for specific use cases (e.g., local synchronization or less critical email handling).
 
-# Future Considerations
+## Future Considerations
 -📊 Analytics service (privacy-first)
 -💬 Comments system (no tracking)
 -🖼️ Media management with R2
@@ -278,13 +290,13 @@ A flexible, lightweight network proxy (written in C, with potential for other la
 5. Test locally before deploying
 
 ## API Documentation
-# Public Endpoints
+### Public Endpoints
 - GET / - Home page with posts
 - GET /post/:id - Individual post
 - GET /login - Login form
 - POST /login - Authenticate
 
-# Protected Endpoints (require auth)
+### Protected Endpoints (require auth)
 - GET /admin - Admin dashboard
 - GET /admin/add - New post form
 - POST /admin/add - Create post
@@ -295,7 +307,7 @@ A flexible, lightweight network proxy (written in C, with potential for other la
 - POST /admin/users/add - Create user
 - POST /admin/users/delete/:id - Delete user
 
-# Security Headers
+## Security Headers
 All responses include:
 
 - X-Content-Type-Options: nosniff
@@ -316,16 +328,16 @@ This is an open source project! Contributions welcome:
 🔒 Security audit
 ```
 
-# License
+## License
 MIT - Use this however you want!
 
-# Acknowledgments
+## Acknowledgments
 Built with Cloudflare Workers, D1, and KV
 Security patterns inspired by OWASP guidelines
 Thanks to the Cloudflare Workers community
 Maintained with ❤️ and Diet Mountain Dew
 
-# Support
+## Support
 💬 Discussions
 🐛 Issues
 ☕ [Buy me a coffee](coff.ee/gnarzillah)
