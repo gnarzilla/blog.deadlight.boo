@@ -6,9 +6,9 @@ export function renderTemplate(title, bodyContent, user = null) {
   
   const authLinks = user 
     ? `
-      <a href="/admin">Dashboard</a> |
       <a href="/admin/add">Create New Post</a> |
-      <a href="/admin/settings">Settings</a> |
+      <a href="/admin">Dashboard</a> |
+      <a href="/inbox">Inbox</a> |
       <a href="/logout">Logout</a>
       `
     : `<a href="/login">Login</a>`;
@@ -20,6 +20,9 @@ export function renderTemplate(title, bodyContent, user = null) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${pageTitle}</title>
+      <link rel="icon" type="image/x-icon" href="/favicon.ico">
+      <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
       <link rel="stylesheet" href="/styles/theme.css">
       <link rel="stylesheet" href="/styles/dark_min.css" id="theme-stylesheet">
     </head>
