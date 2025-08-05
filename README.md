@@ -1,6 +1,6 @@
 # Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
 
-A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true WordPress alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure – even your email. [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
+A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true modern edge native alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure. [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
 
 🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
 
@@ -23,21 +23,16 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 <img width="1576" height="1355" alt="image" src="https://github.com/user-attachments/assets/9fe70fb0-bbf2-4b41-accb-67db5a6b1189" />
 
+## Mobile
+
+
+
 
 ## Features
 
-| Feature           | WordPress | Ghost | Deadlight   |
-| ----------------- | --------- | ----- | ----------- |
-| Self-host on edge | ❌         | ❌     | ✅           |
-| Email integration | ❌         | ⚠️    | ✅ (planned) |
-| Zero tracking     | ⚠️        | ✅     | ✅           |
-| Cloudflare-native | ❌         | ❌     | ✅           |
-| Modular ecosystem | ❌         | ❌     | ✅           |
+### v3 Highlights
 
-
-## What's New in v3:
-
-🔐 **Enterprise-Grade Security**
+🔐 **Security Focused**
 - CSRF protection on all forms
 - Rate limiting (configurable per endpoint)
 - Input validation and sanitization
@@ -68,9 +63,9 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 - Database models with error handling
 - Clean route organization
 
-## Core Features (from v2):
+### Core Features (from v2):
 
-+ Zero cold starts (edge computing!)
++ Near-zero cold start latency (~<5 ms typical)
 + Multi-user authentication with JWT
 + Full Markdown support
 + Dark/Light theme switching
@@ -79,6 +74,16 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 + Smart pagination
 + Post excerpts
 + Request logging (privacy-respecting)
+
+
+| Feature           | WordPress | Ghost | Deadlight   |
+| ----------------- | --------- | ----- | ----------- |
+| Self-host on edge | ❌         | ❌     | ✅           |
+| Email integration | ❌         | ⚠️    | ✅ (planned) |
+| Zero tracking     | ⚠️        | ✅     | ✅           |
+| Cloudflare-native | ❌         | ❌     | ✅           |
+| Modular ecosystem | ❌         | ❌     | ✅           |
+
 
 ## Quick Start
 

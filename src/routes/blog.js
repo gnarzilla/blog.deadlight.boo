@@ -2,7 +2,6 @@
 import { renderPostList } from '../templates/blog/list.js';
 import { renderSinglePost } from '../templates/blog/single.js';
 import { checkAuth } from '../utils/auth.js';
-import { configService } from '../services/config.js'
 
 export const blogRoutes = {
   '/': {
@@ -13,6 +12,7 @@ export const blogRoutes = {
         console.log('Auth check result:', { isAuthenticated: !!user, user });
         
         // Get dynamic config with error handling
+        const { configService } = await import('../services/config.js');
         const config = await configService.getConfig(env.DB);
         console.log('Config loaded:', config); // Debug log
         
@@ -24,9 +24,9 @@ export const blogRoutes = {
         const page = parseInt(url.searchParams.get('page') || '1');
         const offset = (page - 1) * postsPerPage;
         
-        // Get total count for pagination (only published posts)
+        // Get total count for pagination (only published posts, exclude emails)
         const countResult = await env.DB.prepare(
-          'SELECT COUNT(*) as total FROM posts WHERE published = 1'
+          'SELECT COUNT(*) as total FROM posts WHERE published = 1 AND (is_email = 0 OR is_email IS NULL)'
         ).first();
         const totalPosts = countResult.total;
         const totalPages = Math.ceil(totalPosts / postsPerPage);
@@ -38,7 +38,7 @@ export const blogRoutes = {
             users.username as author_username 
           FROM posts 
           JOIN users ON posts.author_id = users.id 
-          WHERE posts.published = 1
+          WHERE posts.published = 1 AND (posts.is_email = 0 OR posts.is_email IS NULL)
           ORDER BY posts.created_at DESC
           LIMIT ? OFFSET ?
         `).bind(postsPerPage, offset).all();
@@ -67,14 +67,15 @@ export const blogRoutes = {
     }
   },
   
-  // ... your existing '/post/:id' route
-  
   '/post/:id': {
     GET: async (request, env) => {
       try {
         const postId = request.params.id;
-        // Fixed: Use checkAuth instead of auth.getUser
         const user = await checkAuth(request, env);
+        
+        // Get dynamic config
+        const { configService } = await import('../services/config.js');
+        const config = await configService.getConfig(env.DB);
         
         // First try to find by slug
         let post = await env.DB.prepare(`
@@ -83,7 +84,7 @@ export const blogRoutes = {
             users.username as author_username
           FROM posts 
           LEFT JOIN users ON posts.author_id = users.id
-          WHERE posts.slug = ? AND posts.published = 1
+          WHERE posts.slug = ? AND posts.published = 1 AND (posts.is_email = 0 OR posts.is_email IS NULL)
         `).bind(postId).first();
         
         // If not found by slug, try by ID
@@ -94,7 +95,7 @@ export const blogRoutes = {
               users.username as author_username
             FROM posts 
             LEFT JOIN users ON posts.author_id = users.id
-            WHERE posts.id = ? AND posts.published = 1
+            WHERE posts.id = ? AND posts.published = 1 AND (posts.is_email = 0 OR posts.is_email IS NULL)
           `).bind(postId).first();
         }
 
@@ -102,8 +103,42 @@ export const blogRoutes = {
           return new Response('Post not found', { status: 404 });
         }
 
-        // Fixed: Use renderSinglePost instead of renderPostPage
-        return new Response(renderSinglePost(post, user), {
+        // Get navigation (previous/next posts)
+        let navigation = null;
+        try {
+          // Get previous post (older)
+          const prevPost = await env.DB.prepare(`
+            SELECT id, title, slug
+            FROM posts 
+            WHERE created_at < ? AND published = 1 AND (is_email = 0 OR is_email IS NULL)
+            ORDER BY created_at DESC 
+            LIMIT 1
+          `).bind(post.created_at).first();
+
+          // Get next post (newer)
+          const nextPost = await env.DB.prepare(`
+            SELECT id, title, slug
+            FROM posts 
+            WHERE created_at > ? AND published = 1 AND (is_email = 0 OR is_email IS NULL)
+            ORDER BY created_at ASC 
+            LIMIT 1
+          `).bind(post.created_at).first();
+
+          if (prevPost || nextPost) {
+            navigation = {
+              prev_id: prevPost ? (prevPost.slug || prevPost.id) : null,
+              prev_title: prevPost ? prevPost.title : null,
+              next_id: nextPost ? (nextPost.slug || nextPost.id) : null,
+              next_title: nextPost ? nextPost.title : null
+            };
+          }
+        } catch (navError) {
+          console.error('Navigation query error:', navError);
+          // Continue without navigation if it fails
+        }
+
+        // Pass config as the 4th parameter to match your updated template
+        return new Response(renderSinglePost(post, user, navigation, config), {
           headers: { 'Content-Type': 'text/html' }
         });
       } catch (error) {

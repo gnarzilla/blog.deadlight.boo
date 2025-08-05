@@ -1,8 +1,8 @@
 // src/templates/blog/single.js
 import { renderTemplate } from '../base.js';
-import { renderMarkdown } from '../../utils/markdown.js';
+import { renderMarkdown } from '../../../../../lib.deadlight/core/src/markdown/processor.js';
 
-export function renderSinglePost(post, user = null, navigation = null) {
+export function renderSinglePost(post, user = null, navigation = null, config = null) {
   const postDate = new Date(post.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -61,5 +61,6 @@ export function renderSinglePost(post, user = null, navigation = null) {
     </article>
   `;
   
-  return renderTemplate(post.title, content, user);
+  // Pass config to renderTemplate for dynamic site title
+  return renderTemplate(post.title, content, user, config);
 }
