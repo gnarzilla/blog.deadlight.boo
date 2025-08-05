@@ -25,12 +25,6 @@ export function renderEditPostForm(post, user, config = null) {
         </div>
         
         <div class="form-group">
-          <label for="excerpt">Excerpt (optional)</label>
-          <textarea id="excerpt" name="excerpt" rows="3" 
-                    placeholder="Brief description for previews...">${post.excerpt || ''}</textarea>
-        </div>
-        
-        <div class="form-group">
           <label for="content">Content (Markdown supported)</label>
           <textarea id="content" name="content" rows="20" required>${post.content}</textarea>
         </div>
