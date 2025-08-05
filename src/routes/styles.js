@@ -1100,6 +1100,150 @@ const baseStyles = `
   .reply-form .cancel-button:hover {
     background-color: var(--button-secondary-hover);
   }
+
+  // Add this to the end of your baseStyles constant, before the closing backtick
+  
+  /* User Profile Styles */
+  .user-profile {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .profile-info h1 {
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+  }
+  
+  .username {
+    color: var(--text-secondary);
+    font-size: 1.1em;
+    margin: 0 0 15px 0;
+  }
+  
+  .profile-description {
+    margin: 15px 0;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  
+  .profile-stats {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+  }
+  
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .posts-section h2 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+  }
+  
+  .post-list {
+    margin-top: 10px;
+  }
+  
+  .post-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    margin-bottom: 5px;
+    border-radius: var(--border-radius);
+  }
+  
+  .post-info h4 {
+    margin: 0 0 5px 0;
+  }
+  
+  .post-info h4 a {
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+  
+  .post-info h4 a:hover {
+    color: var(--link-color);
+  }
+  
+  .post-date {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-right: 10px;
+  }
+  
+  .post-status {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  
+  .post-status.published {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .post-status.draft {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  /* Dark theme adjustments for profile status badges */
+  :root[data-theme="dark"] .post-status.published {
+    background: #0a4f0a;
+    color: #90ee90;
+  }
+  
+  :root[data-theme="dark"] .post-status.draft {
+    background: #4f4a0a;
+    color: #f0e090;
+  }
+  
+  /* Author links - make usernames clickable throughout the site */
+  .author-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .author-link:hover {
+    color: var(--link-color);
+    text-decoration: underline;
+  }
+  
+  /* Mobile responsive for user profiles */
+  @media (max-width: 600px) {
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .profile-actions {
+      justify-content: center;
+    }
+    
+    .post-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
 `;
 
 // Dark theme variables

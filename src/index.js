@@ -6,6 +6,7 @@ import { authRoutes } from './routes/auth.js';
 import { adminRoutes } from './routes/admin.js';
 import { blogRoutes } from './routes/blog.js';
 import { inboxRoutes } from './routes/inbox.js';
+import { userRoutes } from './routes/user.js';
 import { errorMiddleware } from './middleware/error.js';
 import { loggingMiddleware } from './middleware/logging.js';
 import { rateLimitMiddleware, securityHeadersMiddleware } from '../../../lib.deadlight/core/src/security/middleware.js';
@@ -22,6 +23,7 @@ console.log('Registering routes...');
 // Register all routes
 [
   { name: 'blog', routes: blogRoutes },
+  { name: 'user', routes: userRoutes },
   { name: 'style', routes: styleRoutes },
   { name: 'static', routes: staticRoutes },
   { name: 'auth', routes: authRoutes },

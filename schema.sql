@@ -1,15 +1,21 @@
--- Update schema.sql to match the model's expectations
+-- Updated users table with subdomain support
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,  -- Changed from password_hash
-    salt TEXT NOT NULL,      -- Added salt column
+    password TEXT NOT NULL,
+    salt TEXT NOT NULL,
     role TEXT DEFAULT 'user',
     email TEXT,
+    subdomain TEXT,                  -- Will be made unique via index
+    profile_title TEXT,
+    profile_description TEXT,
     last_login DATETIME,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Add unique constraint via index
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_subdomain ON users(subdomain);
 
 -- Create posts table with proper foreign key and additional columns
 CREATE TABLE IF NOT EXISTS posts (

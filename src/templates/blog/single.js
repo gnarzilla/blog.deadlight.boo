@@ -1,6 +1,7 @@
 // src/templates/blog/single.js
 import { renderTemplate } from '../base.js';
 import { renderMarkdown } from '../../../../../lib.deadlight/core/src/markdown/processor.js';
+import { renderAuthorLink } from '../../utils/templates.js';
 
 export function renderSinglePost(post, user = null, navigation = null, config = null) {
   const postDate = new Date(post.created_at).toLocaleDateString('en-US', {
@@ -17,7 +18,7 @@ export function renderSinglePost(post, user = null, navigation = null, config = 
       <header class="post-header">
         <h1>${post.title}</h1>
         <div class="post-meta">
-          <span>By ${post.author_username}</span>
+          <span>By ${renderAuthorLink(post.author_username)}}</span>
           <span class="separator">•</span>
           <time datetime="${post.created_at}">${postDate}</time>
           ${post.updated_at && post.updated_at !== post.created_at ? `
