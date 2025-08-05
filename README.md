@@ -1,32 +1,39 @@
 # Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
 
-A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true modern edge native alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure. [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
-
 🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
+
+<img width="978" height="2106" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_bl_nolog.png" />
+
+A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true modern edge native alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure.
+
+### Free hosting on the edgo B.Y.O.D (Bring your own domain) in minutes
 
 ✔️ Clone the repo
 ✔️ Create D1 database
 ✔️ Set up KV namespace
 ✔️ Deploy via Wrangler
 
-<img width="1057" height="2102" alt="image" src="https://github.com/user-attachments/assets/36766575-eabd-4284-838a-1a87ba2ec096" />
+<img width="976" width="2111" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_nolog.png">
 
-<img width="1061" height="2102" alt="image" src="https://github.com/user-attachments/assets/1b5c106f-75fe-41bb-beff-a29910f5b230" />
+<img width="977" height="803" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/login_wh.png">
 
-## Admin Dashboard & Dynamic Settings
+<img width="980" height="803" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_ylog.png">
 
-<img width="1427" height="1756" alt="image" src="https://github.com/user-attachments/assets/fbeda39b-5020-48fd-90e8-4aa7379c0034" />
+<img width="1246" height="1347" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/addPost_bl.png">
 
-<img width="1427" height="1424" alt="image" src="https://github.com/user-attachments/assets/836fa0fe-142b-4c4c-b169-ed72fe725789" />
+<img width="1249" height="1348" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_bl_ylog.png">
 
-## User Management
+<img width="1231" height="1350" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_log.png">
 
-<img width="1576" height="1355" alt="image" src="https://github.com/user-attachments/assets/9fe70fb0-bbf2-4b41-accb-67db5a6b1189" />
+## Admin Dashboard, Settings && User Management
 
-## Mobile
+<img width="1244" height="1348" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/admindash_wh.png">
 
+<img width="1241" height="1551" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/settings_bl.png">
 
+<img width="1245" height="1550" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/admindash_bl.png">
 
+<img width="1576" height="1355" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/user_management_wh.png">
 
 ## Features
 
@@ -75,6 +82,12 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 + Post excerpts
 + Request logging (privacy-respecting)
 
+## Optimized for Mobile
+
+<img width="" height="" alt="image" src="">
+<img width="" height="" alt="image" src="">
+
+### Market Comparison
 
 | Feature           | WordPress | Ghost | Deadlight   |
 | ----------------- | --------- | ----- | ----------- |
@@ -343,6 +356,6 @@ Thanks to the Cloudflare Workers community
 Maintained with ❤️ and Diet Mountain Dew
 
 ## Support
-💬 Discussions
-🐛 Issues
-☕ [Buy me a coffee](coff.ee/gnarzillah)
+
+☕  [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
+
