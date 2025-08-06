@@ -2,38 +2,38 @@
 
 🌐 Live Demo: [deadlight.boo](https://deadlight.boo)
 
-<img width="978" height="2106" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_bl_nolog.png" />
-
 A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true modern edge native alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure.
 
-### Free hosting on the edgo B.Y.O.D (Bring your own domain) in minutes
+![Main Blog - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_bl_ylog_hero.png)
 
-✔️ Clone the repo
-✔️ Create D1 database
-✔️ Set up KV namespace
-✔️ Deploy via Wrangler
+### Free hosting on the edgo B.Y.O.D. (Bring your own domain) in minutes
 
-<img width="976" width="2111" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_nolog.png">
+1. Clone the repo
+2. Create D1 database
+3. Set up KV namespace
+4. Deploy via Wrangler
 
-<img width="977" height="803" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/login_wh.png">
+![Main Blog - Light Mode - Logged Out](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_wh_nolog.png)
 
-<img width="980" height="803" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_ylog.png">
+![Login - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/login_wh.png)
 
-<img width="1246" height="1347" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/addPost_bl.png">
+![Main Blog - Light Mode - Logged In](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_wh_ylog.png)
 
-<img width="1249" height="1348" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_bl_ylog.png">
+![Create New Post - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/addPost_bl.png)
 
-<img width="1231" height="1350" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_wh_log.png">
+![Main Blog - Dark Mode - Logged In](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_bl_ylog.png)
+
+![Main Blog - Light Mode - Logged In](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_wh_log.png)
 
 ## Admin Dashboard, Settings && User Management
 
-<img width="1244" height="1348" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/admindash_wh.png">
+![Admin Dash - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/admindash_wh.png)
 
-<img width="1241" height="1551" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/settings_bl.png">
+![Login - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/settings_bl.png)
 
-<img width="1245" height="1550" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/admindash_bl.png">
+![Admin Dash - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/admindash_bl.png)
 
-<img width="1576" height="1355" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/user_management_wh.png">
+![User Management - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/user_management_wh.png)
 
 ## Features
 
@@ -84,8 +84,9 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 ## Optimized for Mobile
 
-<img width="" height="" alt="image" src="">
-<img width="" height="" alt="image" src="">
+![Mobile - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_ylog_mobile_wh.png)
+
+![Mobile - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_ylog_mobile_bl.png)
 
 ### Market Comparison
 
@@ -119,8 +120,7 @@ wrangler d1 create blog_content
 ```
 
 Update wrangler.toml with your database ID:
-```bash
-toml
+```toml
 [[d1_databases]]
 binding = "DB"
 database_name = "blog_content"
@@ -168,13 +168,11 @@ wrangler secret put JWT_SECRET
 ```
 
 ### Deploy:
-```
-bash
+```bash
 wrangler deploy
 ```
 ### Create your admin user:
-```
-bash
+```bash
 # Generate secure credentials
 node scripts/generate-user.js
 
@@ -358,4 +356,3 @@ Maintained with ❤️ and Diet Mountain Dew
 ## Support
 
 ☕  [Support is greatly appreciated! Buy me a coffee](coff.ee/gnarzillah)
-
