@@ -1,6 +1,6 @@
 # Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
 
-🌐 Live Demo: [blog.deadlight.boo](https://blog.deadlight.boo)
+🌐 Live Demo: [deadlight.boo](https://deadlight.boo)
 
 <img width="978" height="2106" alt="image" src="https://github.com/gnarzilla/blog.deadlight/blob/main/src/assets/blog_bl_nolog.png" />
 
