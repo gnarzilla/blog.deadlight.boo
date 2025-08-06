@@ -8,7 +8,7 @@ export function renderPost(post, author) {
       <header class="post-header">
         <h1 class="post-title">${post.title}</h1>
         <div class="post-meta">
-          <span class="post-author">By ${renderAuthorLink(post.author_username)}}</span>
+          <span class="post-author">By ${renderAuthorLink(post.author_username)}</span>
           <span class="post-date">${new Date(post.created_at).toLocaleDateString()}</span>
         </div>
       </header>
