@@ -84,6 +84,8 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers 
 
 ## Integrated Proxy Server Management (NEW in v4)
 
+![Proxy Dashboard](https://github.com/gnarzilla/deadlight/blob/main/src/assets/ProxyDash.png)
+
 **Real-time control of your local proxy server through the web interface:**
 
 - 🔄 **Live Status Monitoring** - Real-time connection tracking and health checks
@@ -102,8 +104,6 @@ blog.deadlight HTTP/JSON Multi-Protocol Bridge
 - Bridge modern web apps to legacy TCP protocols (SMTP, IMAP, SOCKS)
 - Test email federation between blog instances
 - Complete infrastructure sovereignty
-
-![Proxy Dashboard](https://github.com/gnarzilla/deadlight/blob/main/src/assets/ProxyDash.png)
 
 ## Optimized for Mobile
 
