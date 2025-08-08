@@ -1,12 +1,12 @@
-# Deadlight Edge Bootstrap v3 - Secure, Modular Blog Platform for Cloudflare Workers (with v4 Roadmap)
+# Deadlight Edge Bootstrap v4 - Secure, Modular Blog Platform with Integrated Proxy Management
 
 🌐 Live Demo: [deadlight.boo](https://deadlight.boo)
 
-A production-ready, security-hardened blog platform built on Cloudflare Workers. Features a modular architecture with a shared library system, comprehensive security controls, and everything you need for a modern blog. Deadlight aims to be the true modern edge native alternative that respects both developers and readers by empowering self-ownership of your content and infrastructure.
+A production-ready, security-hardened blog platform built on Cloudflare Workers with integrated multi-protocol proxy server management. Features real-time proxy control, email federation capabilities, and everything you need for a truly self-sovereign digital presence.
 
 ![Main Blog - Dark Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_bl_ylog_hero.png)
 
-### Free hosting on the edgo B.Y.O.D. (Bring your own domain) in minutes
+### Serverless deployment via Cloudflare Workers free-tier in minutes (B.Y.O.D. - Bring your own domain)
 
 1. Clone the repo
 2. Create D1 database
@@ -25,7 +25,7 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 ![Main Blog - Light Mode - Logged In](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_wh_log.png)
 
-## Admin Dashboard, Settings && User Management
+## Admin Dashboard, Settings & User Management
 
 ![Admin Dash - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/admindash_wh.png)
 
@@ -82,6 +82,27 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 + Post excerpts
 + Request logging (privacy-respecting)
 
+## Integrated Proxy Server Management (NEW in v4)
+
+**Real-time control of your local proxy server through the web interface:**
+
+- 🔄 **Live Status Monitoring** - Real-time connection tracking and health checks
+- 📧 **Email Protocol Bridge** - SMTP/IMAP integration for self-hosted email
+- 🌐 **Federation Testing** - Domain-to-domain communication via email protocols  
+- 🔒 **Privacy Proxy** - SOCKS5 proxy management through web dashboard
+- ⚡ **Instant Deployment** - Global web interface managing local infrastructure
+
+**Architecture:**
+Web Dashboard (Global CDN) ←→ REST API ←→ proxy.deadlight (Your Hardware)
+blog.deadlight HTTP/JSON Multi-Protocol Bridge
+
+**What this enables:**
+- Deploy your blog globally via Cloudflare
+- Manage your local proxy server from any browser
+- Bridge modern web apps to legacy TCP protocols (SMTP, IMAP, SOCKS)
+- Test email federation between blog instances
+- Complete infrastructure sovereignty
+
 ## Optimized for Mobile
 
 ![Mobile - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_ylog_mobile_wh.png)
@@ -90,14 +111,18 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers.
 
 ### Market Comparison
 
+
+### 6. Update the Market Comparison table:
+```markdown
 | Feature           | WordPress | Ghost | Deadlight   |
 | ----------------- | --------- | ----- | ----------- |
 | Self-host on edge | ❌         | ❌     | ✅           |
-| Email integration | ❌         | ⚠️    | ✅ (planned) |
+| Proxy integration | ❌         | ❌     | ✅           |  
+| Email federation  | ❌         | ❌     | ✅           |
+| Real-time control | ❌         | ⚠️    | ✅           |
+| Protocol bridge   | ❌         | ❌     | ✅           |
 | Zero tracking     | ⚠️        | ✅     | ✅           |
-| Cloudflare-native | ❌         | ❌     | ✅           |
-| Modular ecosystem | ❌         | ❌     | ✅           |
-
+```
 
 ## Quick Start
 
@@ -216,6 +241,34 @@ deadlight/
         └── markdown/       # Markdown processing
 ```
 
+## Proxy Integration Setup
+
+### Prerequisites
+- Linux/macOS system for running proxy.deadlight
+- GCC and development tools (`build-essential` on Ubuntu)
+- GLib 2.0+ development libraries
+
+### Quick Start
+```bash
+# Terminal 1: Build and start the proxy server
+git clone https://github.com/your-repo/proxy.deadlight.git
+cd proxy.deadlight/v4.0
+make
+./bin/deadlight -c deadlight.conf.example
+
+# Terminal 2: Start the blog with proxy integration  
+cd ../blog.deadlight
+wrangler dev
+```
+Access http://localhost:8787/admin/proxy for real-time proxy management.
+
+What you can do:
+- Test blog API connectivity
+- Monitor email system status
+- Test federation with other domains
+- Send test emails through proxy bridge
+- View live connection logs
+
 ## Security Features
 
 ### Authentication & Authorization
@@ -272,31 +325,29 @@ Edit theme variables in src/routes/styles.js. The CSS uses variables for easy cu
 - Validation rules: Edit lib.deadlight/core/src/security/validation.js
 - Security headers: Edit lib.deadlight/core/src/security/headers.js
 
-## Ecosystem Roadmap (v4 and Beyond)
+## Current Status & Roadmap
 
-Deadlight is not just a blog; it's a vision for a self-sovereign digital ecosystem. The following modules are under active development or consideration to expand its capabilities while maintaining its core principles of modularity, privacy, and user control.
+### ✅ Production Ready (v4)
+- **proxy.deadlight integration** - Full web-based proxy management
+- **Email protocol bridge** - SMTP/IMAP connectivity for Cloudflare Workers
+- **Federation testing** - Blog-to-blog communication via email
+- **Real-time monitoring** - Live proxy status and connection tracking
 
-## Coming Soon (Actively in Development)
--📧 comm.deadlight - Integrated Email Client/Server:
-Our most ambitious upcoming feature, comm.deadlight aims to provide a robust email solution for your domain (e.g., you@deadlight.boo) without relying on major third-party email providers. This enables true self-ownership of your communications.
-* Hybrid Approach: Leverages Cloudflare Workers for the email application logic, processing, and storage (via KV/Durable Objects).
-* SMTP Handling: Integrates with a lightweight, dedicated SMTP endpoint (potentially your custom Python solution or proxy.deadlight) responsible for sending and receiving raw email protocols.
-* Scalability & Reliability: For production-level reliability and prompt delivery, a small, inexpensive Virtual Private Server (VPS) is recommended for the SMTP endpoint, providing a static public IP and 24/7 availability.
-* Free-Tier Exploration: We are actively exploring solutions that minimize cost, including methods for personal, low-volume use that might run on local hardware (like a Raspberry Pi) and leverage SMTP retry mechanisms, with clear documentation about the trade-offs in reliability. This allows for adoption without immediate financial commitment, while offering a clear upgrade path for critical use.
--🔀 proxy.deadlight - Privacy Proxy Service:
-A flexible, lightweight network proxy (written in C, with potential for other language implementations) designed to facilitate secure and private communication.
-* Email Bridge: Can function as a crucial component of comm.deadlight, bridging raw email protocols (SMTP/IMAP) to HTTP endpoints accessible by Cloudflare Workers.
-* Protocol Flexibility: Enables Cloudflare Workers to interact with services that typically require raw TCP/UDP connections.
-* Portable Executable: Designed to be highly portable, allowing it to run on diverse hardware (from a VPS to a Raspberry Pi or even your local machine), offering deployment flexibility for specific use cases (e.g., local synchronization or less critical email handling).
+### 🚧 Active Development  
+- **comm.deadlight** - Full email client/server integration
+- **Production deployment** - VPS deployment guides for proxy server
+- **Enhanced federation** - Automatic blog post distribution via email
+- **SOCKS5 authentication** - Username/password proxy access
 
 ## Future Considerations
+```
 -📊 Analytics service (privacy-first)
 -💬 Comments system (no tracking)
 -🖼️ Media management with R2
 -📱 Mobile app API
 -🔌 Plugin system
-- 🌐 ActivityPub support
-
+-🌐 ActivityPub support
+```
 
 ## Migration from v2
 1. Export your posts: wrangler d1 execute blog_content --local --command "SELECT * FROM posts"
