@@ -116,12 +116,12 @@ blog.deadlight HTTP/JSON Multi-Protocol Bridge
 ```markdown
 | Feature           | WordPress | Ghost | Deadlight   |
 | ----------------- | --------- | ----- | ----------- |
-| Self-host on edge | ❌         | ❌     | ✅       |
-| Proxy integration | ❌         | ❌     | ✅       |  
-| Email federation  | ❌         | ❌     | ✅       |
-| Real-time control | ❌         | ⚠️     | ✅       |
-| Protocol bridge   | ❌         | ❌     | ✅       |
-| Zero tracking     | ⚠️        | ✅      | ✅       |
+| Self-host on edge | ❌        | ❌   |    ✅       |
+| Proxy integration | ❌        | ❌   |    ✅       |  
+| Email federation  | ❌        | ❌   |    ✅       |
+| Real-time control | ❌        | ⚠️   |    ✅       |
+| Protocol bridge   | ❌        | ❌   |    ✅       |
+| Zero tracking     | ⚠️        | ✅   |    ✅       |
 ```
 
 ## Quick Start
