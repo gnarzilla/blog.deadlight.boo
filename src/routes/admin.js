@@ -5,6 +5,7 @@ import {
   renderAddUserForm, 
   renderDeleteConfirmation
 } from '../templates/admin/index.js';
+import { handleProxyRoutes, handleProxyTests } from './proxy.js';
 import { checkAuth } from '../utils/auth.js';
 import { renderTemplate } from '../templates/base.js';
 import { UserModel, PostModel } from '../../../../lib.deadlight/core/src/db/models/index.js';
@@ -475,6 +476,63 @@ export const adminRoutes = {
         logger.error('Error deleting user', { userId: request.params.id, error: error.message });
         return new Response('Failed to delete user', { status: 500 });
       }
+    }
+  },
+
+  // Proxy Dashboard
+  '/admin/proxy': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.redirect(`${new URL(request.url).origin}/login`);
+      }
+
+      return await handleProxyRoutes(request, env, user);
+    }
+  },
+
+  // Proxy API Test Endpoints
+  '/admin/proxy/test-blog-api': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+
+      return await handleProxyTests.testBlogApi(request, env);
+    }
+  },
+
+  '/admin/proxy/test-email-api': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+
+      return await handleProxyTests.testEmailApi(request, env);
+    }
+  },
+
+  '/admin/proxy/test-federation': {
+    GET: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+
+      return await handleProxyTests.testFederation(request, env);
+    }
+  },
+
+  '/admin/proxy/send-test-email': {
+    POST: async (request, env) => {
+      const user = await checkAuth(request, env);
+      if (!user) {
+        return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+
+      return await handleProxyTests.sendTestEmail(request, env);
     }
   },
 

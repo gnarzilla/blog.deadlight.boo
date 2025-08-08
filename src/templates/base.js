@@ -9,7 +9,7 @@ export function renderTemplate(title, bodyContent, user = null, config = null) {
     ? `
       <a href="/admin/add">Create New Post</a> |
       <a href="/admin">Dashboard</a> |
-      <a href="/inbox">Inbox</a> |
+      <a href="/admin/proxy">Proxy Server</a> |
       <a href="/logout">Logout</a>
       `
     : `<a href="/login">Login</a>`;
