@@ -103,6 +103,8 @@ blog.deadlight HTTP/JSON Multi-Protocol Bridge
 - Test email federation between blog instances
 - Complete infrastructure sovereignty
 
+![Proxy Dashboard](https://github.com/gnarzilla/deadlight/blob/main/src/assets/ProxyDash.png)
+
 ## Optimized for Mobile
 
 ![Mobile - Light Mode](https://github.com/gnarzilla/deadlight/blob/main/src/assets/blog_ylog_mobile_wh.png)
@@ -111,17 +113,15 @@ blog.deadlight HTTP/JSON Multi-Protocol Bridge
 
 ### Market Comparison
 
-
-### 6. Update the Market Comparison table:
 ```markdown
 | Feature           | WordPress | Ghost | Deadlight   |
 | ----------------- | --------- | ----- | ----------- |
-| Self-host on edge | ❌         | ❌     | ✅           |
-| Proxy integration | ❌         | ❌     | ✅           |  
-| Email federation  | ❌         | ❌     | ✅           |
-| Real-time control | ❌         | ⚠️    | ✅           |
-| Protocol bridge   | ❌         | ❌     | ✅           |
-| Zero tracking     | ⚠️        | ✅     | ✅           |
+| Self-host on edge | ❌         | ❌     | ✅       |
+| Proxy integration | ❌         | ❌     | ✅       |  
+| Email federation  | ❌         | ❌     | ✅       |
+| Real-time control | ❌         | ⚠️     | ✅       |
+| Protocol bridge   | ❌         | ❌     | ✅       |
+| Zero tracking     | ⚠️        | ✅      | ✅       |
 ```
 
 ## Quick Start
