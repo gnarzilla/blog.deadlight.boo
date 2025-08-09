@@ -84,6 +84,8 @@ A production-ready, security-hardened blog platform built on Cloudflare Workers 
 
 ## Integrated Proxy Server Management (NEW in v4)
 
+![Proxy Dashboard](https://github.com/gnarzilla/deadlight/blob/main/src/assets/ProxyDash.png)
+
 **Real-time control of your local proxy server through the web interface:**
 
 - 🔄 **Live Status Monitoring** - Real-time connection tracking and health checks
@@ -111,17 +113,15 @@ blog.deadlight HTTP/JSON Multi-Protocol Bridge
 
 ### Market Comparison
 
-
-### 6. Update the Market Comparison table:
 ```markdown
 | Feature           | WordPress | Ghost | Deadlight   |
 | ----------------- | --------- | ----- | ----------- |
-| Self-host on edge | ❌         | ❌     | ✅           |
-| Proxy integration | ❌         | ❌     | ✅           |  
-| Email federation  | ❌         | ❌     | ✅           |
-| Real-time control | ❌         | ⚠️    | ✅           |
-| Protocol bridge   | ❌         | ❌     | ✅           |
-| Zero tracking     | ⚠️        | ✅     | ✅           |
+| Self-host on edge | ❌        | ❌   |    ✅       |
+| Proxy integration | ❌        | ❌   |    ✅       |  
+| Email federation  | ❌        | ❌   |    ✅       |
+| Real-time control | ❌        | ⚠️   |    ✅       |
+| Protocol bridge   | ❌        | ❌   |    ✅       |
+| Zero tracking     | ⚠️        | ✅   |    ✅       |
 ```
 
 ## Quick Start

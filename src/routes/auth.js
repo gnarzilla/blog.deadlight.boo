@@ -2,10 +2,10 @@
 import { renderLoginForm } from '../templates/auth/index.js';
 import { hashPassword, verifyPassword } from '../utils/auth.js';
 import { createJWT } from '../utils/jwt.js';
-import { UserModel } from '../../../../lib.deadlight/core/src/db/models/user.js';
-import { Logger } from '../../../../lib.deadlight/core/src/logging/logger.js';
-import { Validator, FormValidator, CSRFProtection } from '../../../../lib.deadlight/core/src/security/validation.js';
-import { authLimiter } from '../../../../lib.deadlight/core/src/security/ratelimit.js';
+import { UserModel } from '../../lib.deadlight/core/src/db/models/user.js';
+import { Logger } from '../../lib.deadlight/core/src/logging/logger.js';
+import { Validator, FormValidator, CSRFProtection } from '../../lib.deadlight/core/src/security/validation.js';
+import { authLimiter } from '../../lib.deadlight/core/src/security/ratelimit.js';
 
 export const authRoutes = {
   '/login': {
@@ -204,11 +204,9 @@ export const authRoutes = {
       });
     }
   },
-
-  // Add this to src/routes/auth.js temporarily
   '/generate-admin': {
     GET: async (request, env) => {
-      const { hashPassword } = await import('../../../../lib.deadlight/core/src/auth/password.js');
+      const { hashPassword } = await import('../../../lib.deadlight/core/src/auth/password.js');
       
       const password = 'gross-gnar';
       const { hash, salt } = await hashPassword(password);
