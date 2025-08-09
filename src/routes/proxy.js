@@ -1,6 +1,25 @@
-// src/routes/proxy.js - Updated for deadlight blog integration
+// src/routes/proxy.js - Updated for deadlight blog integration with queue count
 import { ProxyService } from '../services/proxy.js';
 import { proxyDashboardTemplate } from '../templates/admin/proxyDashboard.js';
+
+// Helper function to get queued operations count
+async function getQueuedCount(db) {
+    try {
+        const replies = await db.prepare(
+            'SELECT COUNT(*) as count FROM posts WHERE is_reply_draft = 1 AND email_metadata LIKE \'%"sent":false%\''
+        ).first();
+        
+        // Future: Add other queue types (federation posts, scheduled emails, etc.)
+        const federatedPosts = await db.prepare(
+            'SELECT COUNT(*) as count FROM posts WHERE federation_pending = 1'
+        ).first().catch(() => ({ count: 0 })); // Handle if column doesn't exist yet
+        
+        return (replies?.count || 0) + (federatedPosts?.count || 0);
+    } catch (error) {
+        console.error('Error getting queue count:', error);
+        return 0;
+    }
+}
 
 export async function handleProxyRoutes(request, env, user) {
     try {
@@ -11,6 +30,9 @@ export async function handleProxyRoutes(request, env, user) {
         // Initialize proxy service with config
         const proxyUrl = env.PROXY_URL || config.proxyUrl || 'http://localhost:8080';
         const proxyService = new ProxyService({ PROXY_URL: proxyUrl });
+
+        // Get queue count for outbox
+        const queueCount = await getQueuedCount(env.DB);
 
         // Fetch proxy status data
         const [blogStatus, emailStatus, healthCheck] = await Promise.allSettled([
@@ -29,7 +51,7 @@ export async function handleProxyRoutes(request, env, user) {
             }
         };
 
-        return new Response(proxyDashboardTemplate(proxyData, user, config), {
+        return new Response(proxyDashboardTemplate(proxyData, user, config, queueCount), {
             headers: { 'Content-Type': 'text/html' }
         });
 
@@ -44,13 +66,13 @@ export async function handleProxyRoutes(request, env, user) {
         const { configService } = await import('../services/config.js');
         const config = await configService.getConfig(env.DB);
         
-        return new Response(proxyDashboardTemplate(errorData, user, config), {
+        return new Response(proxyDashboardTemplate(errorData, user, config, 0), {
             headers: { 'Content-Type': 'text/html' }
         });
     }
 }
 
-// Proxy test handlers
+// Proxy test handlers remain the same
 export const handleProxyTests = {
     async testBlogApi(request, env) {
         try {

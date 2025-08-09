@@ -1100,8 +1100,6 @@ const baseStyles = `
   .reply-form .cancel-button:hover {
     background-color: var(--button-secondary-hover);
   }
-
-  // Add this to the end of your baseStyles constant, before the closing backtick
   
   /* User Profile Styles */
   .user-profile {
@@ -1244,6 +1242,210 @@ const baseStyles = `
       gap: 10px;
     }
   }
+
+  // Add to the end of baseStyles, before the closing backtick
+
+/* Proxy Dashboard */
+.proxy-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.status-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+}
+
+.status-indicator.connected {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.status-indicator.disconnected {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.proxy-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.service-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.service-card:hover {
+  border-color: var(--border-hover);
+}
+
+.service-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.service-status {
+  font-weight: 500;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+}
+
+.service-status.healthy {
+  color: var(--text-primary);
+}
+
+.service-status.error {
+  color: var(--text-secondary);
+}
+
+.error-banner {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2rem;
+}
+
+.error-banner h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.error-banner p {
+  margin: 0.5rem 0;
+}
+
+.proxy-actions {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.proxy-actions h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.integration-guide {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.integration-guide h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+}
+
+.guide-section h4 {
+  color: var(--text-primary);
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.guide-section h4:first-child {
+  margin-top: 0;
+}
+
+.guide-section p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Queue Status */
+.queue-status {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.queue-status h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+}
+
+.queue-waiting {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  z-index: 1000;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .proxy-dashboard {
+    padding: 1rem;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .proxy-services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+}
 `;
 
 // Dark theme variables

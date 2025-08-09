@@ -535,6 +535,59 @@ export const adminRoutes = {
       return await handleProxyTests.sendTestEmail(request, env);
     }
   },
+  
+  '/admin/process-outbox': {
+      POST: async (request, env) => {
+          const user = await checkAuth(request, env);
+          if (!user) {
+              return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+          }
+
+          try {
+              // Import and use the OutboxService (you'll create this)
+              const { OutboxService } = await import('../services/outbox.js');
+              const outbox = new OutboxService(env);
+              const result = await outbox.processQueue();
+
+              if (result.error) {
+                  return Response.json({ 
+                      success: false, 
+                      error: result.error,
+                      message: `Failed to process queue: ${result.error}`
+                  });
+              }
+
+              return Response.json({ 
+                  success: true, 
+                  processed: result.processed || 0,
+                  queued: result.queued || 0,
+                  message: `✅ Processed ${result.processed || 0} operations. ${result.queued || 0} remaining in queue.`
+              });
+          } catch (error) {
+              console.error('Outbox processing error:', error);
+              return Response.json({ 
+                  success: false, 
+                  error: error.message,
+                  message: `Failed to process queue: ${error.message}`
+              });
+          }
+      }
+  },
+  // Add to admin.js - endpoint for receiving federated posts
+  '/federation/receive': {
+      POST: async (request, env) => {
+          const { post } = await request.json();
+          
+          // Verify sender domain, prevent spam, etc.
+          await env.DB.prepare(`
+              INSERT INTO federated_posts (source_domain, title, content, author, published_at, source_url)
+              VALUES (?, ?, ?, ?, ?, ?)
+          `).bind(post.source_domain, post.title, post.content, post.author, post.published_at, post.source_url).run();
+          
+          // Optional: Auto-approve trusted domains or require moderation
+          return Response.json({ success: true, message: 'Federated post received' });
+      }
+  },
 
   '/admin/inject-emails': {
     GET: async (request, env) => {
