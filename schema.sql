@@ -1,24 +1,19 @@
--- Updated users table with subdomain support
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
     role TEXT DEFAULT 'user',
     email TEXT,
-    subdomain TEXT,                  -- Will be made unique via index
-    profile_title TEXT,
-    profile_description TEXT,
     last_login DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    subdomain TEXT,
+    profile_title TEXT,
+    profile_description TEXT,
+    updated_at TIMESTAMP
 );
 
--- Add unique constraint via index
-CREATE UNIQUE INDEX IF NOT EXISTS idx_users_subdomain ON users(subdomain);
-
--- Create posts table with proper foreign key and additional columns
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     slug TEXT UNIQUE NOT NULL,
@@ -28,17 +23,16 @@ CREATE TABLE IF NOT EXISTS posts (
     published BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_email INTEGER DEFAULT 0,
+    email_metadata TEXT DEFAULT NULL,
+    is_reply_draft INTEGER DEFAULT 0,
+    visibility TEXT DEFAULT 'public' CHECK (visibility IN ('public', 'private')),
+    moderation_status TEXT DEFAULT 'approved' CHECK (moderation_status IN ('approved', 'pending', 'rejected')),
+    moderation_notes TEXT,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_posts_published ON posts(published);
-CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
-CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created_at);
-CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
-
--- Optional: Add request_logs table if you want logging
-CREATE TABLE IF NOT EXISTS request_logs (
+CREATE TABLE request_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     path TEXT NOT NULL,
@@ -52,21 +46,9 @@ CREATE TABLE IF NOT EXISTS request_logs (
     error TEXT
 );
 
--- Create settings table for site configuration
-CREATE TABLE IF NOT EXISTS settings (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL,
-  type TEXT DEFAULT 'string', -- string, number, boolean
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    type TEXT DEFAULT 'string',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-
--- Insert default settings
-INSERT OR IGNORE INTO settings (key, value, type) VALUES 
-  ('site_title', 'deadlight.boo', 'string'),
-  ('site_description', 'A minimal blog framework', 'string'),
-  ('posts_per_page', '10', 'number'),
-  ('date_format', 'M/D/YYYY', 'string'),
-  ('timezone', 'UTC', 'string'),
-  ('enable_registration', 'false', 'boolean'),
-  ('require_login_to_read', 'false', 'boolean'),
-  ('maintenance_mode', 'false', 'boolean');
